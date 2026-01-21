@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exam Crunch Mode</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Smooth fade for elements */
+    .fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Custom subtle scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+  </style>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+</head>
+
+<body class="bg-slate-950 text-slate-300 min-h-screen flex flex-col font-sans selection:bg-red-500/30">
+
+  <header class="fixed top-0 w-full bg-slate-950/80 backdrop-blur-md border-b border-white/5 z-50">
+    <div class="max-w-5xl mx-auto px-4 py-4">
+      <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+
+        <div>
+          <h1 class="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div>
+            EXAM CRUNCH
+          </h1>
+          <div id="header-date" class="text-xs font-mono text-slate-500 mt-1">LOADING DATE...</div>
+        </div>
+
+        <div class="w-full md:w-1/2 flex flex-col justify-center">
+          <div class="flex justify-between text-[10px] text-slate-600 font-mono mb-1 uppercase">
+            <span>Jan 21</span>
+            <span>PROGRESS</span>
+            <span>Mar 04</span>
+          </div>
+          <div class="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden">
+            <div id="semester-progress" class="h-full bg-white/20 rounded-full transition-all duration-1000"
+              style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow pt-32 pb-24 px-4">
+    <div id="exam-list" class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    </div>
+  </main>
+
+  <div
+    class="fixed bottom-0 left-0 right-0 md:bottom-6 md:right-6 md:left-auto md:w-auto bg-slate-900/90 backdrop-blur border-t md:border border-white/10 p-4 md:rounded-xl z-50 flex items-center justify-between md:gap-6 shadow-2xl">
+    <div class="flex flex-col">
+      <span class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Focus Timer</span>
+      <span id="pomo-display" class="text-2xl font-mono text-white font-bold">25:00</span>
+    </div>
+
+    <div class="flex gap-2">
+      <button onclick="toggleTimer()" id="btn-toggle"
+        class="h-10 w-10 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 text-white transition-colors">
+        ▶
+      </button>
+      <button onclick="resetTimer()"
+        class="h-10 w-10 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 transition-colors">
+        ⟳
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // --- DATA ---
+    const EXAMS = [
+      { id: 1, name: "Prog. Methods & Tools 1", code: "AI1589", date: "2026-02-13T23:59:00", type: "Portfolio", cancellable: false, difficult: false, theory: false },
+      { id: 2, name: "Programming 1", code: "AI1000", date: "2026-02-19T09:00:00", type: "Portfolio/PC", cancellable: false, difficult: true, theory: false },
+      { id: 3, name: "Algos & Data Structures", code: "AI1012", date: "2026-02-20T23:59:00", type: "Portfolio", cancellable: false, difficult: true, theory: false },
+      { id: 4, name: "Business Admin 1", code: "AI1005", date: "2026-02-23T08:00:00", type: "Written", cancellable: true, difficult: false, theory: true },
+      { id: 5, name: "Database Systems", code: "AI1014", date: "2026-02-25T12:30:00", type: "Written", cancellable: true, difficult: false, theory: false },
+      { id: 6, name: "Math Basics of CS", code: "AI1004", date: "2026-02-27T08:00:00", type: "Written", cancellable: true, difficult: true, theory: false },
+      { id: 7, name: "Operating Systems", code: "AI1013", date: "2026-02-27T17:00:00", type: "Written", cancellable: true, difficult: true, theory: false },
+      { id: 8, name: "Digital Tech & Systems", code: "AI1002", date: "2026-03-02T13:30:00", type: "Written", cancellable: true, difficult: true, theory: false },
+      { id: 9, name: "HCI", code: "AI1047", date: "2026-03-04T11:00:00", type: "Written", cancellable: true, difficult: false, theory: true }
+    ];
+
+    // --- CONFIG ---
+    const SEMESTER_START = new Date("2026-01-21T00:00:00");
+    const SEMESTER_END = new Date("2026-03-04T23:59:00");
+
+    // --- CORE LOGIC ---
+    function updateUI() {
+      const now = new Date();
+
+      // 1. Header Date
+      const dateStr = now.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+      const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('header-date').innerText = `${dateStr} · ${timeStr}`;
+
+      // 2. Timeline Progress
+      const totalDuration = SEMESTER_END - SEMESTER_START;
+      const elapsed = now - SEMESTER_START;
+      let percent = (elapsed / totalDuration) * 100;
+      percent = Math.max(0, Math.min(100, percent));
+      document.getElementById('semester-progress').style.width = `${percent}%`;
+
+      // 3. Render Grid (Only re-render if second changes significantly or first load)
+      // Ideally we render once, but for "dynamic" days we recalculate.
+      renderCards(now);
+    }
+
+    function renderCards(now) {
+      const container = document.getElementById('exam-list');
+      container.innerHTML = ''; // Clear current
+
+      const sorted = [...EXAMS].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      sorted.forEach((exam, index) => {
+        const examDate = new Date(exam.date);
+        const diffMs = examDate - now;
+        const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+        const isPassed = diffMs < 0;
+        const isCritical = daysLeft >= 0 && daysLeft < 15;
+
+        // Drop Logic
+        const dropDate = new Date(examDate);
+        dropDate.setDate(dropDate.getDate() - 10);
+        const canDrop = exam.cancellable && now < dropDate;
+        const dropDeadlineText = dropDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+
+        // Styles
+        let cardBg = "bg-slate-900/50 hover:bg-slate-900";
+        let borderColor = "border-white/5 hover:border-white/20";
+        let statusColor = "text-slate-500";
+
+        if (isPassed) {
+          cardBg = "bg-slate-950 opacity-50";
+          borderColor = "border-transparent";
+        } else if (isCritical) {
+          cardBg = "bg-red-900/10";
+          borderColor = "border-red-500/30 hover:border-red-500/50";
+          statusColor = "text-red-400";
+        }
+
+        const card = document.createElement('div');
+        card.className = `p-5 rounded-xl border transition-all duration-300 fade-in flex flex-col justify-between ${cardBg} ${borderColor}`;
+        card.style.animationDelay = `${index * 50}ms`;
+
+        card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-mono text-[10px] text-slate-500 bg-white/5 px-2 py-1 rounded">${exam.code}</span>
+                            <div class="flex gap-1">
+                                ${exam.difficult ? '<span class="text-[10px] text-red-400">HARD</span>' : ''}
+                                ${exam.theory ? '<span class="text-[10px] text-blue-400">THEORY</span>' : ''}
+                            </div>
+                        </div>
+                        <h3 class="text-sm font-semibold text-slate-100 mb-1 leading-snug">${exam.name}</h3>
+                        <div class="text-xs text-slate-500 mb-4">${new Date(exam.date).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-end justify-between border-t border-white/5 pt-3">
+                            <div>
+                                <div class="text-[10px] uppercase text-slate-600 font-bold mb-0.5">Time Remaining</div>
+                                <div class="text-2xl font-mono font-bold ${isPassed ? 'text-slate-600' : (isCritical ? 'text-red-500' : 'text-white')}">
+                                    ${isPassed ? 'DONE' : `${daysLeft}d`}
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-[10px] text-slate-600 mb-1">
+                                    ${!exam.cancellable ? 'NO DROP' : (canDrop ? `Drop by ${dropDeadlineText}` : 'LOCKED')}
+                                </div>
+                                <div class="text-[10px] text-slate-400 border border-white/10 px-2 py-1 rounded-full inline-block">
+                                    ${exam.type}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+        container.appendChild(card);
+      });
+    }
+
+    // --- TIMER LOGIC ---
+    let timerTime = 25 * 60;
+    let isRunning = false;
+    let timerInterval = null;
+
+    function updateTimerDisplay() {
+      const m = Math.floor(timerTime / 60).toString().padStart(2, '0');
+      const s = (timerTime % 60).toString().padStart(2, '0');
+      document.getElementById('pomo-display').innerText = `${m}:${s}`;
+      document.title = isRunning ? `(${m}:${s}) Crunch Mode` : 'Exam Crunch';
+    }
+
+    function toggleTimer() {
+      const btn = document.getElementById('btn-toggle');
+      if (isRunning) {
+        clearInterval(timerInterval);
+        isRunning = false;
+        btn.innerHTML = "▶";
+        btn.classList.remove('text-red-400');
+        btn.classList.add('text-white');
+      } else {
+        isRunning = true;
+        btn.innerHTML = "⏸";
+        btn.classList.remove('text-white');
+        btn.classList.add('text-red-400');
+        timerInterval = setInterval(() => {
+          if (timerTime > 0) {
+            timerTime--;
+            updateTimerDisplay();
+          } else {
+            clearInterval(timerInterval);
+            isRunning = false;
+            alert("Time's up!");
+            btn.innerHTML = "▶";
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      isRunning = false;
+      timerTime = 25 * 60;
+      updateTimerDisplay();
+      const btn = document.getElementById('btn-toggle');
+      btn.innerHTML = "▶";
+      btn.classList.remove('text-red-400');
+      btn.classList.add('text-white');
+    }
+
+    // --- INIT & LOOP ---
+    updateUI(); // First run
+    setInterval(updateUI, 60000); // Update dates every minute
+  </script>
+</body>
+
+</html>
