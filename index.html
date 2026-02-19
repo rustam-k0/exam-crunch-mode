@@ -135,10 +135,9 @@
     }
 
     function getExamStatus(examId, isPast) {
-      if (!isPast) return 'FUTURE';
       const stored = localStorage.getItem(`exam_status_${examId}`);
       if (stored) return stored;
-      return 'PENDING'; // Default for past exams
+      return 'PENDING'; // Default
     }
 
     function cycleStatus(examId) {
@@ -197,15 +196,15 @@
         let borderColor = "border-white/5 hover:border-white/20";
         let statusColor = "text-slate-500";
         let textColor = "text-white";
-        // Interactive cursor for past exams
-        let cursorClass = isPast ? "cursor-pointer" : "cursor-default";
+        // Interactive cursor for all exams
+        let cursorClass = "cursor-pointer";
 
         if (status === 'PASSED') {
-          // Regular passed (Done)
-          cardBg = "bg-slate-950 opacity-50";
-          borderColor = "border-transparent";
-          statusColor = "text-slate-600";
-          textColor = "text-slate-600";
+          // Passed (Green)
+          cardBg = "bg-green-900/10";
+          borderColor = "border-green-500/50 hover:border-green-500";
+          statusColor = "text-green-400";
+          textColor = "text-green-200";
         } else if (status === 'PENDING') {
           // Pending (Yellow)
           cardBg = "bg-yellow-900/10";
@@ -230,10 +229,8 @@
         card.className = `p-5 rounded-xl border transition-all duration-300 fade-in flex flex-col justify-between ${cardBg} ${borderColor} ${cursorClass}`;
         card.style.animationDelay = `${index * 50}ms`;
 
-        if (isPast) {
-          card.onclick = () => cycleStatus(exam.id);
-          card.title = "Click to toggle status: Pending -> Passed -> Failed";
-        }
+        card.onclick = () => cycleStatus(exam.id);
+        card.title = "Click to toggle status: Pending -> Passed -> Failed";
 
         // Format Date
         const formattedDate = examDate.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -247,7 +244,7 @@
           timeLeftColor = "text-yellow-400";
         } else if (status === 'PASSED') {
           timeLeftDisplay = "PASSED"; // User requested "successfully passed" logic, but user prompt said "удачно сданный" which I will map to PASSED
-          timeLeftColor = "text-slate-600";
+          timeLeftColor = "text-green-400";
         } else if (status === 'FAILED') {
           timeLeftDisplay = "FAILED";
           timeLeftColor = "text-red-400";
