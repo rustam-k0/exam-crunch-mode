@@ -143,8 +143,10 @@
     function cycleStatus(examId) {
       const current = localStorage.getItem(`exam_status_${examId}`) || 'PENDING';
       let next;
-      if (current === 'PENDING') next = 'PASSED';
+      if (current === 'PENDING') next = 'WARNING';
+      else if (current === 'WARNING') next = 'PASSED';
       else if (current === 'PASSED') next = 'FAILED';
+      else if (current === 'FAILED') next = 'CANCELED';
       else next = 'PENDING';
 
       localStorage.setItem(`exam_status_${examId}`, next);
@@ -211,21 +213,32 @@
           borderColor = "border-blue-500/30 hover:border-blue-500/50";
           statusColor = "text-blue-400";
           textColor = "text-blue-100";
+        } else if (status === 'WARNING') {
+          // Warning (Yellow) - Explicit Pending Option
+          cardBg = "bg-yellow-900/10";
+          borderColor = "border-yellow-500/50 hover:border-yellow-500";
+          statusColor = "text-yellow-400";
+          textColor = "text-yellow-200";
         } else if (status === 'FAILED') {
           // Failed (Red)
           cardBg = "bg-red-900/10";
           borderColor = "border-red-500/50 hover:border-red-500";
           statusColor = "text-red-400";
           textColor = "text-red-200";
+        } else if (status === 'CANCELED') {
+          // Canceled (Grey)
+          cardBg = "bg-slate-800/50";
+          borderColor = "border-slate-600/50 hover:border-slate-500";
+          statusColor = "text-slate-400";
+          textColor = "text-slate-400";
         }
-        // Removed isCritical strictly because desired default state is blue/calm
 
         const card = document.createElement('div');
         card.className = `p-5 rounded-xl border transition-all duration-300 fade-in flex flex-col justify-between ${cardBg} ${borderColor} ${cursorClass}`;
         card.style.animationDelay = `${index * 50}ms`;
 
         card.onclick = () => cycleStatus(exam.id);
-        card.title = "Click to toggle status: Pending -> Passed -> Failed";
+        card.title = "Click to toggle status: Calm -> Warning -> Passed -> Failed -> Canceled";
 
         // Format Date
         const formattedDate = examDate.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -237,9 +250,15 @@
         if (status === 'PASSED') {
           timeLeftDisplay = "PASSED";
           timeLeftColor = "text-green-400";
+        } else if (status === 'WARNING') {
+          timeLeftDisplay = "PENDING";
+          timeLeftColor = "text-yellow-400";
         } else if (status === 'FAILED') {
           timeLeftDisplay = "FAILED";
           timeLeftColor = "text-red-400";
+        } else if (status === 'CANCELED') {
+          timeLeftDisplay = "CANCELED";
+          timeLeftColor = "text-slate-400";
         } else {
           // Default / Pending -> Show Days
           if (daysLeft === 0 || (daysLeft === 1 && diffMs < 86400000)) {
