@@ -206,24 +206,19 @@
           statusColor = "text-green-400";
           textColor = "text-green-200";
         } else if (status === 'PENDING') {
-          // Pending (Yellow)
-          cardBg = "bg-yellow-900/10";
-          borderColor = "border-yellow-500/50 hover:border-yellow-500";
-          statusColor = "text-yellow-400";
-          textColor = "text-yellow-200";
+          // Pending (Blue/Calm) as requested
+          cardBg = "bg-blue-900/10";
+          borderColor = "border-blue-500/30 hover:border-blue-500/50";
+          statusColor = "text-blue-400";
+          textColor = "text-blue-100";
         } else if (status === 'FAILED') {
           // Failed (Red)
           cardBg = "bg-red-900/10";
           borderColor = "border-red-500/50 hover:border-red-500";
           statusColor = "text-red-400";
           textColor = "text-red-200";
-        } else if (isCritical) {
-          // Critical (Blue now, formerly Red)
-          cardBg = "bg-blue-900/10";
-          borderColor = "border-blue-500/30 hover:border-blue-500/50";
-          statusColor = "text-blue-400";
-          textColor = "text-blue-100";
         }
+        // Removed isCritical strictly because desired default state is blue/calm
 
         const card = document.createElement('div');
         card.className = `p-5 rounded-xl border transition-all duration-300 fade-in flex flex-col justify-between ${cardBg} ${borderColor} ${cursorClass}`;
@@ -239,29 +234,20 @@
         let timeLeftDisplay = "";
         let timeLeftColor = "";
 
-        if (status === 'PENDING') {
-          timeLeftDisplay = "PENDING";
-          timeLeftColor = "text-yellow-400";
-        } else if (status === 'PASSED') {
-          timeLeftDisplay = "PASSED"; // User requested "successfully passed" logic, but user prompt said "удачно сданный" which I will map to PASSED
+        if (status === 'PASSED') {
+          timeLeftDisplay = "PASSED";
           timeLeftColor = "text-green-400";
         } else if (status === 'FAILED') {
           timeLeftDisplay = "FAILED";
           timeLeftColor = "text-red-400";
         } else {
-          // Future logic
+          // Default / Pending -> Show Days
           if (daysLeft === 0 || (daysLeft === 1 && diffMs < 86400000)) {
-            // Check if it's literally today or just very close. 
-            // If daysLeft is 0, it means it's today (since Math.ceil of small positive is 1, wait.
-            // Math.ceil(0.1) is 1. Math.ceil(-0.1) is -0. 
-            // If diffMs > 0, daysLeft is at least 1.
-            // If it's the same day, we want < 1 d.
-            // Let's stick to the requested "< 1 day" logic.
             timeLeftDisplay = daysLeft <= 1 ? "< 1 d" : `${daysLeft}d`;
           } else {
             timeLeftDisplay = `${daysLeft}d`;
           }
-          timeLeftColor = isCritical ? 'text-blue-400' : 'text-white';
+          timeLeftColor = 'text-blue-400';
         }
 
         // Tag Logic: Only show Portfolio or nothing for Written
