@@ -1,367 +1,278 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Exams</title>
-  <link rel="icon"
-    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+  <title>Exam Result Tracker</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎓</text></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg-color: #050505;
+      --glow-color: rgba(62, 102, 245, 0.15);
+    }
+    
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-color);
+      color: #e2e8f0;
+      background-image: 
+        radial-gradient(circle at 15% 50%, rgba(37, 99, 235, 0.08), transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08), transparent 25%);
+      background-attachment: fixed;
     }
 
     .font-mono {
       font-family: 'JetBrains Mono', monospace;
-      font-variant-numeric: tabular-nums;
     }
 
-    /* Smooth fade for elements */
+    /* Glassmorphic cards */
+    .glass-card {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 16px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .glass-card:hover {
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 0 12px 30px -10px rgba(0,0,0,0.5);
+    }
+
+    /* Progress bar animation */
+    #timeline-progress {
+      transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Fade in animation for cards */
     .fade-in {
-      animation: fadeIn 0.5s ease-in-out;
+      animation: fadeIn 0.6s ease-out forwards;
+      opacity: 0;
     }
 
     @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      0% { opacity: 0; transform: translateY(15px); }
+      100% { opacity: 1; transform: translateY(0); }
     }
 
-    /* Custom subtle scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
+    /* Status specific styles */
+    .status-neutral { border: 1px solid rgba(255,255,255,0.08); }
+    .status-high { border: 1px solid rgba(16, 185, 129, 0.5); background: rgba(16, 185, 129, 0.08); box-shadow: 0 0 20px rgba(16, 185, 129, 0.1); }
+    .status-medium { border: 1px solid rgba(234, 179, 8, 0.5); background: rgba(234, 179, 8, 0.08); box-shadow: 0 0 20px rgba(234, 179, 8, 0.1); }
+    .status-low { border: 1px solid rgba(249, 115, 22, 0.5); background: rgba(249, 115, 22, 0.08); box-shadow: 0 0 20px rgba(249, 115, 22, 0.1); }
+    .status-retake { border: 1px solid rgba(239, 68, 68, 0.5); background: rgba(239, 68, 68, 0.08); box-shadow: 0 0 20px rgba(239, 68, 68, 0.1); }
+    .status-cancelled { border: 1px solid rgba(100, 116, 139, 0.3); background: rgba(15, 23, 42, 0.4); filter: grayscale(100%); opacity: 0.6; pointer-events: auto; }
 
-    ::-webkit-scrollbar-track {
-      background: transparent;
-    }
+    .glow-text-high { color: #34d399; text-shadow: 0 0 10px rgba(52, 211, 153, 0.4); }
+    .glow-text-medium { color: #facc15; text-shadow: 0 0 10px rgba(250, 204, 21, 0.4); }
+    .glow-text-low { color: #fb923c; text-shadow: 0 0 10px rgba(251, 146, 60, 0.4); }
+    .glow-text-retake { color: #f87171; text-shadow: 0 0 10px rgba(248, 113, 113, 0.4); }
+    .glow-text-cancelled { color: #94a3b8; }
+    .glow-text-neutral { color: #cbd5e1; }
 
-    ::-webkit-scrollbar-thumb {
-      background: #334155;
-      border-radius: 3px;
-    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
   </style>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;700&display=swap"
-    rel="stylesheet">
 </head>
 
-<body class="bg-slate-950 text-slate-300 min-h-screen flex flex-col font-sans selection:bg-blue-500/30">
+<body class="min-h-screen flex flex-col selection:bg-blue-600/30">
 
-  <header class="fixed top-0 w-full bg-slate-950/80 backdrop-blur-md border-b border-white/5 z-50">
-    <div class="max-w-5xl mx-auto px-4 py-4">
-      <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-
+  <!-- Fixed Header -->
+  <header class="fixed top-0 w-full z-50 backdrop-blur-xl bg-[#050505]/70 border-b border-white/5">
+    <div class="max-w-6xl mx-auto px-6 py-5">
+      <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-6">
+        
+        <!-- Branding -->
         <div>
-          <h1 class="text-xl font-bold text-white tracking-tight flex items-center gap-2">
-            <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-            EXAMS
+          <h1 class="text-3xl font-bold tracking-tight text-white mb-1 flex items-center gap-3">
+            <span class="bg-gradient-to-r from-blue-400 to-violet-400 bg-clip-text text-transparent">Result Tracker</span>
           </h1>
-          <div id="header-date" class="text-xs font-mono text-slate-500 mt-1">LOADING DATE...</div>
+          <p class="text-sm font-mono text-slate-400 uppercase tracking-widest" id="current-date">Loading...</p>
         </div>
 
-        <div class="w-full md:w-1/2 flex flex-col justify-center">
-          <div class="flex justify-between text-[10px] text-slate-600 font-mono mb-1 uppercase">
-            <span>Feb 01</span>
-            <span>PROGRESS</span>
+        <!-- Master Timeline -->
+        <div class="w-full md:w-1/2">
+          <div class="flex justify-between items-center text-xs font-mono text-slate-500 mb-2 uppercase tracking-wide">
             <span>Mar 04</span>
+            <span class="text-blue-400 font-bold" id="timeline-percentage">0%</span>
+            <span>Aug 04</span>
           </div>
-          <div class="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden">
-            <div id="semester-progress" class="h-full bg-white/20 rounded-full transition-all duration-1000"
-              style="width: 0%"></div>
+          <div class="h-2 w-full bg-slate-800/50 rounded-full overflow-hidden border border-white/5 box-content">
+            <div id="timeline-progress" class="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-violet-500 rounded-full" style="width: 0%"></div>
           </div>
         </div>
+
       </div>
     </div>
   </header>
 
-  <main class="flex-grow pt-32 pb-24 px-4">
-    <div id="exam-list" class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  <!-- Main Content Area -->
+  <main class="flex-grow pt-36 pb-20 px-6">
+    <div class="max-w-6xl mx-auto">
+      
+      <div class="flex justify-between items-end mb-8">
+        <h2 class="text-xl font-medium text-slate-300">Your Exams Archive</h2>
+        <div class="text-xs font-mono text-slate-500">Click a card to change its grade status</div>
+      </div>
+
+      <!-- Exam Grid -->
+      <div id="exam-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        <!-- Cards injected by JS -->
+      </div>
     </div>
   </main>
 
-  <div
-    class="fixed bottom-0 left-0 right-0 md:bottom-6 md:right-6 md:left-auto md:w-auto bg-slate-900/90 backdrop-blur border-t md:border border-white/10 p-4 md:rounded-xl z-50 flex items-center justify-between md:gap-6 shadow-2xl">
-    <div class="flex flex-col">
-      <span class="text-[10px] uppercase text-slate-500 font-bold tracking-wider">Focus Timer</span>
-      <span id="pomo-display" class="text-2xl font-mono text-white font-bold">25:00</span>
-    </div>
-
-    <div class="flex gap-2">
-      <button onclick="toggleTimer()" id="btn-toggle"
-        class="h-10 w-10 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 text-white transition-colors">
-        ▶
-      </button>
-      <button onclick="resetTimer()"
-        class="h-10 w-10 flex items-center justify-center rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 transition-colors">
-        ⟳
-      </button>
-    </div>
-  </div>
-
   <script>
-    // --- DATA ---
-    const EXAMS = [
-      { id: 1, name: "Prog. Methods & Tools 1", code: "AI1589", date: "2026-02-13T23:59:00", type: "Portfolio", cancellable: false, difficult: false, theory: false },
-      { id: 2, name: "Programming 1", code: "AI1000", date: "2026-02-19T09:00:00", type: "Portfolio/PC", cancellable: false, difficult: true, theory: false },
-      { id: 3, name: "Algos & Data Structures", code: "AI1012", date: "2026-02-20T23:59:00", type: "Portfolio", cancellable: false, difficult: true, theory: false },
-      { id: 4, name: "Business Admin 1", code: "AI1005", date: "2026-02-23T08:00:00", type: "Written", cancellable: true, difficult: false, theory: true },
-      { id: 5, name: "Database Systems", code: "AI1014", date: "2026-02-25T12:30:00", type: "Written", cancellable: true, difficult: false, theory: false },
-      { id: 6, name: "Math Basics of CS", code: "AI1004", date: "2026-02-27T08:00:00", type: "Written", cancellable: true, difficult: true, theory: false },
-      { id: 7, name: "Operating Systems", code: "AI1013", date: "2026-02-27T17:00:00", type: "Written", cancellable: true, difficult: true, theory: false },
-      { id: 8, name: "Digital Tech & Systems", code: "AI1002", date: "2026-03-02T13:30:00", type: "Written", cancellable: true, difficult: true, theory: false },
-      { id: 9, name: "HCI", code: "AI1047", date: "2026-03-04T11:00:00", type: "Written", cancellable: true, difficult: false, theory: true }
+    // --- CONFIG & CONSTANTS ---
+    const TIMELINE_START = new Date("2026-03-04T00:00:00");
+    const TIMELINE_END = new Date("2026-08-04T23:59:59");
+    const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+    const STATUSES = ["neutral", "high", "medium", "low", "retake", "cancelled"];
+    
+    // Detailed Status Config mapping
+    const STATUS_UI = {
+      neutral: { label: "Awaiting Result", ring: "status-neutral", textClass: "glow-text-neutral" },
+      high: { label: "High Grade", ring: "status-high", textClass: "glow-text-high" },
+      medium: { label: "Medium Grade", ring: "status-medium", textClass: "glow-text-medium" },
+      low: { label: "Low Grade", ring: "status-low", textClass: "glow-text-low" },
+      retake: { label: "Retake Needed", ring: "status-retake", textClass: "glow-text-retake" },
+      cancelled: { label: "Cancelled", ring: "status-cancelled", textClass: "glow-text-cancelled" }
+    };
+
+    // --- MOCK DATA ---
+    const EXAMS_DATA = [
+      { id: "e1", code: "MAT201", name: "Advanced Mathematics", date: "2026-03-12T09:00:00" },
+      { id: "e2", code: "PHY102", name: "Physics II Mechanics", date: "2026-03-25T14:00:00" },
+      { id: "e3", code: "CS301", name: "Computer Vision", date: "2026-04-10T11:00:00" },
+      { id: "e4", code: "CS305", name: "Web Engineering", date: "2026-05-02T13:30:00" },
+      { id: "e5", code: "DS400", name: "Machine Learning", date: "2026-05-28T10:00:00" },
+      { id: "e6", code: "PHL101", name: "Modern Philosophy", date: "2026-06-15T15:00:00" },
+      { id: "e7", code: "ENG202", name: "Technical Writing", date: "2026-06-25T09:00:00" },
+      { id: "e8", code: "THE500", name: "Thesis Defense", date: "2026-07-20T10:00:00" }
     ];
 
-    // --- CONFIG ---
-    const SEMESTER_START = new Date("2026-02-01T00:00:00");
-    const SEMESTER_END = new Date("2026-03-04T23:59:00");
-
-    // --- CORE LOGIC ---
-    function getBerlinDate() {
-      // Create a date object, format it to Berlin time string, then parse it back
-      // This is a simplified way to treat "now" as if it were Berlin time for day-based diffs
-      const now = new Date();
-      const berlinString = now.toLocaleString("en-US", { timeZone: "Europe/Berlin" });
-      return new Date(berlinString);
+    // --- STATE MANAGEMENT ---
+    function getExamStatus(examId) {
+      return localStorage.getItem(`exam_status_${examId}`) || "neutral";
     }
 
-    function getExamStatus(examId, isPast) {
-      const stored = localStorage.getItem(`exam_status_${examId}`);
-      if (stored) return stored;
-      return 'PENDING'; // Default
+    function cycleExamStatus(examId) {
+      const current = getExamStatus(examId);
+      const currentIndex = STATUSES.indexOf(current);
+      const nextIndex = (currentIndex + 1) % STATUSES.length;
+      localStorage.setItem(`exam_status_${examId}`, STATUSES[nextIndex]);
+      renderApp();
     }
 
-    function cycleStatus(examId) {
-      const current = localStorage.getItem(`exam_status_${examId}`) || 'PENDING';
-      let next;
-      if (current === 'PENDING') next = 'WARNING';
-      else if (current === 'WARNING') next = 'PASSED';
-      else if (current === 'PASSED') next = 'FAILED';
-      else if (current === 'FAILED') next = 'CANCELED';
-      else next = 'PENDING';
+    // --- RENDER LOGIC ---
+    function updateHeader(now) {
+      const dateStr = now.toLocaleDateString('en-GB', { 
+        weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' 
+      });
+      document.getElementById('current-date').innerText = dateStr;
 
-      localStorage.setItem(`exam_status_${examId}`, next);
-      updateUI(); // Re-render immediately
-    }
-
-    function updateUI() {
-      const nowBerlin = getBerlinDate(); // Representing current 'local' time in Berlin context
-
-      // 1. Header Date
-      const dateStr = nowBerlin.toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
-      const timeStr = nowBerlin.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-      document.getElementById('header-date').innerText = `${dateStr} · ${timeStr} (Berlin)`;
-
-      // 2. Timeline Progress
-      const totalDuration = SEMESTER_END - SEMESTER_START;
-      const elapsed = nowBerlin - SEMESTER_START; // Assuming SEMESTER_START is also treated as local time
+      // Timeline Calculation
+      const totalDuration = TIMELINE_END - TIMELINE_START;
+      const elapsed = now - TIMELINE_START;
+      
       let percent = (elapsed / totalDuration) * 100;
       percent = Math.max(0, Math.min(100, percent));
-      document.getElementById('semester-progress').style.width = `${percent}%`;
-
-      // 3. Render Grid
-      renderCards(nowBerlin);
+      
+      document.getElementById('timeline-progress').style.width = `${percent}%`;
+      document.getElementById('timeline-percentage').innerText = `${percent.toFixed(1)}%`;
     }
 
     function renderCards(now) {
-      const container = document.getElementById('exam-list');
-      container.innerHTML = ''; // Clear current
+      const grid = document.getElementById('exam-grid');
+      grid.innerHTML = '';
 
-      const sorted = [...EXAMS].sort((a, b) => new Date(a.date) - new Date(b.date));
+      const sorted = [...EXAMS_DATA].sort((a, b) => new Date(a.date) - new Date(b.date));
 
       sorted.forEach((exam, index) => {
         const examDate = new Date(exam.date);
-        const diffMs = examDate - now;
-        const daysLeft = Math.ceil(diffMs / (1000 * 60 * 60 * 24)); // Days calculation
-
-        const isPast = diffMs < 0;
-        const status = getExamStatus(exam.id, isPast);
-        const isCritical = daysLeft >= 0 && daysLeft < 15;
-
-        // Drop Logic
-        const dropDate = new Date(examDate);
-        dropDate.setDate(dropDate.getDate() - 10);
-        const canDrop = exam.cancellable && now < dropDate;
-        const dropDeadlineText = dropDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
-
-        // Styles
-        let cardBg = "bg-slate-900/50 hover:bg-slate-900";
-        let borderColor = "border-white/5 hover:border-white/20";
-        let statusColor = "text-slate-500";
-        let textColor = "text-white";
-        // Interactive cursor for all exams
-        let cursorClass = "cursor-pointer";
-
-        if (status === 'PASSED') {
-          // Passed (Green)
-          cardBg = "bg-green-900/10";
-          borderColor = "border-green-500/50 hover:border-green-500";
-          statusColor = "text-green-400";
-          textColor = "text-green-200";
-        } else if (status === 'PENDING') {
-          // Pending (Blue/Calm) as requested
-          cardBg = "bg-blue-900/10";
-          borderColor = "border-blue-500/30 hover:border-blue-500/50";
-          statusColor = "text-blue-400";
-          textColor = "text-blue-100";
-        } else if (status === 'WARNING') {
-          // Warning (Yellow) - Explicit Pending Option
-          cardBg = "bg-yellow-900/10";
-          borderColor = "border-yellow-500/50 hover:border-yellow-500";
-          statusColor = "text-yellow-400";
-          textColor = "text-yellow-200";
-        } else if (status === 'FAILED') {
-          // Failed (Red)
-          cardBg = "bg-red-900/10";
-          borderColor = "border-red-500/50 hover:border-red-500";
-          statusColor = "text-red-400";
-          textColor = "text-red-200";
-        } else if (status === 'CANCELED') {
-          // Canceled (Grey)
-          cardBg = "bg-slate-800/50";
-          borderColor = "border-slate-600/50 hover:border-slate-500";
-          statusColor = "text-slate-400";
-          textColor = "text-slate-400";
-        }
-
-        const card = document.createElement('div');
-        card.className = `p-5 rounded-xl border transition-all duration-300 fade-in flex flex-col justify-between ${cardBg} ${borderColor} ${cursorClass}`;
-        card.style.animationDelay = `${index * 50}ms`;
-
-        card.onclick = () => cycleStatus(exam.id);
-        card.title = "Click to toggle status: Calm -> Warning -> Passed -> Failed -> Canceled";
-
-        // Format Date
-        const formattedDate = examDate.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-
-        // Logic for display text
-        let timeLeftDisplay = "";
-        let timeLeftColor = "";
-
-        if (status === 'PASSED') {
-          timeLeftDisplay = "PASSED";
-          timeLeftColor = "text-green-400";
-        } else if (status === 'WARNING') {
-          timeLeftDisplay = "PENDING";
-          timeLeftColor = "text-yellow-400";
-        } else if (status === 'FAILED') {
-          timeLeftDisplay = "FAILED";
-          timeLeftColor = "text-red-400";
-        } else if (status === 'CANCELED') {
-          timeLeftDisplay = "CANCELED";
-          timeLeftColor = "text-slate-400";
+        const diffMs = now - examDate;
+        
+        let timeLabel = "";
+        let timeValue = "";
+        
+        if (diffMs >= 0) {
+          // Passed
+          const daysPassed = Math.floor(diffMs / MS_PER_DAY);
+          timeLabel = "DAYS PASSED";
+          timeValue = daysPassed.toString();
         } else {
-          // Default / Pending -> Show Days
-          if (daysLeft === 0 || (daysLeft === 1 && diffMs < 86400000)) {
-            timeLeftDisplay = daysLeft <= 1 ? "< 1 d" : `${daysLeft}d`;
-          } else {
-            timeLeftDisplay = `${daysLeft}d`;
-          }
-          timeLeftColor = 'text-blue-400';
+          // Future
+          const daysLeft = Math.ceil(Math.abs(diffMs) / MS_PER_DAY);
+          timeLabel = "IN DAYS";
+          timeValue = daysLeft.toString();
         }
 
-        // Tag Logic: Only show Portfolio or nothing for Written
-        const typeTag = exam.type.includes("Written") ? "" : exam.type;
+        const status = getExamStatus(exam.id);
+        const uiConfig = STATUS_UI[status];
+
+        const dateFormatted = examDate.toLocaleString('en-GB', { 
+          day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' 
+        });
+
+        // Create Card Element
+        const card = document.createElement('div');
+        card.className = `glass-card p-5 cursor-pointer fade-in flex flex-col justify-between ${uiConfig.ring}`;
+        card.style.animationDelay = `${index * 60}ms`;
+        card.onclick = () => cycleExamStatus(exam.id);
 
         card.innerHTML = `
-                    <div class="pointer-events-none">
-                        <div class="flex justify-between items-start mb-2">
-                             <div class="flex gap-1 ml-auto">
-                                ${exam.difficult ? '<span class="text-[10px] text-blue-400">HARD</span>' : ''}
-                                ${exam.theory ? '<span class="text-[10px] text-slate-400">THEORY</span>' : ''}
-                            </div>
-                        </div>
-                        <h3 class="text-sm font-semibold ${textColor} mb-1 leading-snug">${exam.name}</h3>
-                        <div class="text-xs text-slate-500 mb-4">${formattedDate}</div>
-                    </div>
+          <div class="pointer-events-none mb-6">
+            <div class="flex justify-between items-start mb-3">
+              <span class="text-xs font-mono font-bold bg-white/10 px-2 py-1 rounded text-slate-300 tracking-wider">
+                ${exam.code}
+              </span>
+              <span class="text-[10px] font-mono uppercase tracking-widest ${uiConfig.textClass} font-bold px-2 py-1 border border-current rounded-full">
+                ${uiConfig.label}
+              </span>
+            </div>
+            <h3 class="text-lg font-medium text-white leading-tight mb-1">${exam.name}</h3>
+            <p class="text-xs text-slate-500">${dateFormatted}</p>
+          </div>
 
-                    <div class="pointer-events-none">
-                        <div class="flex items-end justify-between border-t border-white/5 pt-3">
-                            <div>
-                                <div class="text-[10px] uppercase text-slate-600 font-bold mb-0.5">Focus</div>
-                                <div class="text-2xl font-mono font-bold ${timeLeftColor}">
-                                    ${timeLeftDisplay}
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-[10px] text-slate-600 mb-1">
-                                    ${!exam.cancellable ? 'NO DROP' : (canDrop ? `Drop by ${dropDeadlineText}` : 'LOCKED')}
-                                </div>
-                                ${typeTag ? `
-                                <div class="text-[10px] text-slate-400 border border-white/10 px-2 py-1 rounded-full inline-block">
-                                    ${typeTag}
-                                </div>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-        container.appendChild(card);
+          <div class="pointer-events-none pt-4 border-t border-white/5 flex items-end justify-between">
+            <div>
+              <div class="text-[9px] uppercase tracking-widest text-slate-500 mb-1">${timeLabel}</div>
+              <div class="text-3xl font-mono font-bold ${diffMs >= 0 ? uiConfig.textClass : 'text-slate-400'}">
+                ${timeValue}
+              </div>
+            </div>
+            ${status === 'cancelled' ? `
+              <div class="text-2xl opacity-50">❌</div>
+            ` : `
+              <div class="text-xl ${uiConfig.textClass} opacity-80">
+                ${status === 'high' ? '🏆' : status === 'medium' ? '⚡' : status === 'low' ? '⚠️' : status === 'retake' ? '🔄' : '⏱'}
+              </div>
+            `}
+          </div>
+        `;
+        
+        grid.appendChild(card);
       });
     }
 
-    // --- TIMER LOGIC ---
-    let timerTime = 25 * 60;
-    let isRunning = false;
-    let timerInterval = null;
-
-    function updateTimerDisplay() {
-      const m = Math.floor(timerTime / 60).toString().padStart(2, '0');
-      const s = (timerTime % 60).toString().padStart(2, '0');
-      document.getElementById('pomo-display').innerText = `${m}:${s}`;
-      document.title = isRunning ? `(${m}:${s}) Exams` : 'Exams';
+    function renderApp() {
+      const now = new Date(); // Using local system time
+      updateHeader(now);
+      renderCards(now);
     }
 
-    function toggleTimer() {
-      const btn = document.getElementById('btn-toggle');
-      if (isRunning) {
-        clearInterval(timerInterval);
-        isRunning = false;
-        btn.innerHTML = "▶";
-        btn.classList.remove('text-blue-400');
-        btn.classList.add('text-white');
-      } else {
-        isRunning = true;
-        btn.innerHTML = "⏸";
-        btn.classList.remove('text-white');
-        btn.classList.add('text-blue-400');
-        timerInterval = setInterval(() => {
-          if (timerTime > 0) {
-            timerTime--;
-            updateTimerDisplay();
-          } else {
-            clearInterval(timerInterval);
-            isRunning = false;
-            alert("Time's up!");
-            btn.innerHTML = "▶";
-          }
-        }, 1000);
-      }
-    }
-
-    function resetTimer() {
-      clearInterval(timerInterval);
-      isRunning = false;
-      timerTime = 25 * 60;
-      updateTimerDisplay();
-      const btn = document.getElementById('btn-toggle');
-      btn.innerHTML = "▶";
-      btn.classList.remove('text-blue-400');
-      btn.classList.add('text-white');
-    }
-
-    // --- INIT & LOOP ---
-    updateUI(); // First run
-    setInterval(updateUI, 60000); // Update dates every minute
+    // --- INIT ---
+    document.addEventListener("DOMContentLoaded", () => {
+      renderApp();
+      // Update the progress and time labels periodically
+      setInterval(renderApp, 60000); 
+    });
   </script>
 </body>
-
 </html>
