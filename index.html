@@ -245,9 +245,32 @@
 
     .subject-card[data-status="preparing"] { background: #fffdf4; }
     .subject-card[data-status="ready"] { background: #f4f7ff; }
-    .subject-card[data-status="done"] { background: #f1faf3; border-color: #a8d9b3; }
-    .subject-card[data-status="retake"] { background: #fff4f3; border-color: #f0b6b1; }
-    .subject-card[data-status="skipped"] { opacity: .58; }
+    .subject-card[data-status="waiting"] { background: #fffdf4; }
+    .subject-card[data-status="good"] { background: #f1faf3; border-color: #a8d9b3; }
+    .subject-card[data-status="average"] { background: #f4f7ff; border-color: #cddbfe; }
+    .subject-card[data-status="bad"] { background: #fff4f3; border-color: #f0b6b1; }
+    .subject-card[data-status="failed"] { background: #fee2e2; border-color: #fca5a5; }
+    .subject-card[data-status="cancelled"] { opacity: .58; }
+
+    .mode-toggle {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11px;
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .mode-toggle:hover {
+      background: var(--soft);
+    }
+    .topbar-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: right;
+    }
 
     .card-head {
       display: flex;
@@ -421,7 +444,10 @@
           <p>Summer semester 2026 · Berlin</p>
         </div>
       </div>
-      <time class="clock" id="current-time">Loading…</time>
+      <div class="topbar-controls">
+        <button id="mode-toggle" class="mode-toggle" onclick="toggleMode()">Mode: Prep</button>
+        <time class="clock" id="current-time">Loading…</time>
+      </div>
     </header>
 
     <section class="overview" aria-label="Exam overview">
@@ -529,8 +555,22 @@
       }
     ];
 
-    const STATES = ["todo", "preparing", "ready", "done", "retake", "skipped"];
-    const STATE_LABELS = { todo: "To do", preparing: "Preparing", ready: "Ready", done: "Done", retake: "Retake", skipped: "Skipped" };
+    const MODE_PREP_STATES = ["todo", "preparing", "ready"];
+    const MODE_PREP_LABELS = { todo: "To do", preparing: "Preparing", ready: "Ready" };
+    const MODE_POST_STATES = ["waiting", "good", "average", "bad", "failed", "cancelled"];
+    const MODE_POST_LABELS = { waiting: "Waiting", good: "Good", average: "Average", bad: "Bad", failed: "Failed", cancelled: "Cancelled" };
+    
+    let currentMode = localStorage.getItem("exam_mode") || "prep";
+
+    function getActiveStates() { return currentMode === "prep" ? MODE_PREP_STATES : MODE_POST_STATES; }
+    function getActiveLabels() { return currentMode === "prep" ? MODE_PREP_LABELS : MODE_POST_LABELS; }
+
+    function toggleMode() {
+      currentMode = currentMode === "prep" ? "post" : "prep";
+      localStorage.setItem("exam_mode", currentMode);
+      render();
+    }
+
     const DIFFICULTY_LABELS = { hard: "Hard", medium: "Medium", light: "Light" };
     const DAY = 86400000;
     const PERIOD_START = parseDate("2026-06-30");
@@ -559,16 +599,21 @@
     }
 
     function getStatus(id) {
-      const current = localStorage.getItem(`semester26_${id}`);
-      if (current === "working") return "preparing";
-      if (current === "passed") return "done";
-      return STATES.includes(current) ? current : "todo";
+      const activeStates = getActiveStates();
+      let current = localStorage.getItem(`semester26_${id}_${currentMode}`);
+      if (!current && currentMode === "prep") {
+        current = localStorage.getItem(`semester26_${id}`);
+        if (current === "working") current = "preparing";
+        if (current === "passed" || current === "done") current = "ready";
+      }
+      return activeStates.includes(current) ? current : activeStates[0];
     }
 
     function cycleStatus(id) {
+      const activeStates = getActiveStates();
       const current = getStatus(id);
-      const next = STATES[(STATES.indexOf(current) + 1) % STATES.length];
-      localStorage.setItem(`semester26_${id}`, next);
+      const next = activeStates[(activeStates.indexOf(current) + 1) % activeStates.length];
+      localStorage.setItem(`semester26_${id}_${currentMode}`, next);
       render();
     }
 
@@ -591,7 +636,10 @@
         label.textContent = "the exam period is complete";
       }
 
-      const done = SUBJECTS.filter(subject => getStatus(subject.id) === "done").length;
+      const done = SUBJECTS.filter(subject => {
+        const s = getStatus(subject.id);
+        return s === "ready" || s === "good" || s === "average" || s === "bad";
+      }).length;
       const completion = Math.round((done / SUBJECTS.length) * 100);
       const elapsed = Math.max(0, Math.min(100, ((now - PERIOD_START) / (PERIOD_END - PERIOD_START)) * 100));
       document.getElementById("completion-copy").textContent = `${done} of ${SUBJECTS.length} subjects complete`;
@@ -617,11 +665,12 @@
         SUBJECTS.forEach(subject => {
           const weekMilestones = subject.milestones.filter(milestone => milestone.week === week.id);
           if (!weekMilestones.length) return;
+        const activeLabels = getActiveLabels();
         const status = getStatus(subject.id);
         const card = document.createElement("article");
         card.className = "subject-card";
         card.dataset.status = status;
-        card.setAttribute("aria-label", `${subject.name}, ${week.label}. ${DIFFICULTY_LABELS[subject.difficulty]} difficulty. Status: ${STATE_LABELS[status]}.`);
+        card.setAttribute("aria-label", `${subject.name}, ${week.label}. ${DIFFICULTY_LABELS[subject.difficulty]} difficulty. Status: ${activeLabels[status]}.`);
 
         const milestones = weekMilestones.map(milestone => `
           <li class="milestone">
@@ -638,7 +687,7 @@
               <span class="difficulty ${subject.difficulty}" title="${DIFFICULTY_LABELS[subject.difficulty]} difficulty"><i class="dot"></i></span>
               <h3>${subject.name}</h3>
             </div>
-            <button class="state" type="button" title="Change status" aria-label="Change ${subject.name} status from ${STATE_LABELS[status]}">${STATE_LABELS[status]}</button>
+            <button class="state" type="button" title="Change status" aria-label="Change ${subject.name} status from ${activeLabels[status]}">${activeLabels[status]}</button>
           </div>
           <div class="tags"><span class="tag">${subject.required}</span><span class="tag">${subject.format}</span></div>
           <ul class="milestones">${milestones}</ul>
@@ -652,6 +701,7 @@
 
     function render() {
       const now = new Date();
+      document.getElementById("mode-toggle").textContent = currentMode === "prep" ? "Mode: Prep" : "Mode: Post-exam";
       document.getElementById("current-time").textContent = now.toLocaleString("en-GB", {
         weekday: "short", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin"
       }) + " · Berlin";
