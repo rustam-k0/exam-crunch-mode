@@ -682,8 +682,14 @@
         });
         
         let todayPct = ((now - PERIOD_START) / totalDuration) * 100;
+        todayPct = Math.max(0, Math.min(100, todayPct));
+        
+        // Shaded bar for elapsed time
+        trackHTML += `<div style="position: absolute; left: 0; top: 0; height: 100%; width: ${todayPct}%; background: #e5e5e5; border-radius: 99px; z-index: 1;"></div>`;
+        
         if (todayPct >= 0 && todayPct <= 100) {
            trackHTML += `<div style="position: absolute; left: ${todayPct}%; top: -1px; height: 7px; width: 2px; background: var(--text); transform: translateX(-50%); z-index: 3;" title="Today"></div>`;
+           trackHTML += `<div style="position: absolute; left: ${todayPct}%; top: -12px; font-size: 8px; font-weight: 600; color: var(--text); transform: translateX(-50%); z-index: 3;">${Math.round(todayPct)}%</div>`;
         }
         
         progressTrack.innerHTML = trackHTML;
