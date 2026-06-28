@@ -457,7 +457,7 @@
       </div>
       <div class="progress-wrap">
         <div class="progress-copy"><span id="completion-copy">0 of 11 subjects complete</span><span id="run-copy">0% of exam period</span></div>
-        <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+        <div class="progress-track" id="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
       </div>
       <div class="difficulty-legend" aria-label="Difficulty legend">
         <span class="legend-item"><i class="dot hard"></i>Hard</span>
@@ -643,16 +643,38 @@
       const completion = Math.round((done / SUBJECTS.length) * 100);
       const elapsed = Math.max(0, Math.min(100, ((now - PERIOD_START) / (PERIOD_END - PERIOD_START)) * 100));
       const completionCopy = document.getElementById("completion-copy");
+      const progressTrack = document.getElementById("progress-track");
+      
       if (currentMode === "prep") {
+        completionCopy.textContent = "Exam timeline";
+        
         const exams = allEvents().filter(e => e.label.toLowerCase().includes("exam"));
-        const dates = [...new Set(exams.map(e => dateLabel(e.date)))];
-        completionCopy.innerHTML = dates.join(' &middot; ');
+        const uniqueDateTimes = [...new Set(exams.map(e => parseDate(e.date).getTime()))];
+        const totalDuration = PERIOD_END - PERIOD_START;
+        
+        let trackHTML = "";
+        
+        uniqueDateTimes.forEach(t => {
+           let pct = ((t - PERIOD_START) / totalDuration) * 100;
+           pct = Math.max(0, Math.min(100, pct));
+           const color = t < now ? "var(--muted)" : "var(--blue)";
+           trackHTML += `<div style="position: absolute; left: ${pct}%; top: 0; height: 100%; width: 5px; background: ${color}; border-radius: 5px; transform: translateX(-50%); z-index: 1;"></div>`;
+        });
+        
+        let todayPct = ((now - PERIOD_START) / totalDuration) * 100;
+        if (todayPct >= 0 && todayPct <= 100) {
+           trackHTML += `<div style="position: absolute; left: ${todayPct}%; top: 0; height: 100%; width: 2px; background: var(--text); transform: translateX(-50%); z-index: 2;"></div>`;
+        }
+        
+        progressTrack.innerHTML = trackHTML;
+        progressTrack.style.position = "relative";
       } else {
         completionCopy.textContent = `${done} of ${SUBJECTS.length} subjects complete`;
+        progressTrack.innerHTML = `<div class="progress-fill" id="progress-fill" style="width: ${completion}%"></div>`;
+        progressTrack.style.position = "relative";
       }
       
       document.getElementById("run-copy").textContent = `${Math.round(elapsed)}% of exam period`;
-      document.getElementById("progress-fill").style.width = `${completion}%`;
     }
 
     function renderCards(now) {
