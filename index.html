@@ -642,7 +642,15 @@
       }).length;
       const completion = Math.round((done / SUBJECTS.length) * 100);
       const elapsed = Math.max(0, Math.min(100, ((now - PERIOD_START) / (PERIOD_END - PERIOD_START)) * 100));
-      document.getElementById("completion-copy").textContent = `${done} of ${SUBJECTS.length} subjects complete`;
+      const completionCopy = document.getElementById("completion-copy");
+      if (currentMode === "prep") {
+        const exams = allEvents().filter(e => e.label.toLowerCase().includes("exam"));
+        const dates = [...new Set(exams.map(e => dateLabel(e.date)))];
+        completionCopy.innerHTML = dates.join(' &middot; ');
+      } else {
+        completionCopy.textContent = `${done} of ${SUBJECTS.length} subjects complete`;
+      }
+      
       document.getElementById("run-copy").textContent = `${Math.round(elapsed)}% of exam period`;
       document.getElementById("progress-fill").style.width = `${completion}%`;
     }
