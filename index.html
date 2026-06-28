@@ -8,16 +8,18 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2238%22 fill=%22%232563eb%22/></svg>">
   <style>
     :root {
-      --bg: #f4f4f0;
+      --bg: #f6f7f5;
       --card: #ffffff;
-      --text: #191919;
-      --muted: #74746d;
-      --line: #deded8;
-      --soft: #eeeeea;
+      --text: #17191f;
+      --muted: #666b73;
+      --line: #d9ddd5;
+      --soft: #eef1ec;
+      --soft-strong: #e5e9e2;
       --blue: #2563eb;
-      --red: #ef4444;
-      --amber: #eab308;
-      --green: #22a447;
+      --red: #e23f3f;
+      --amber: #d99a00;
+      --green: #199348;
+      --shadow: 0 1px 2px rgba(23, 25, 31, .05);
     }
 
     * { box-sizing: border-box; }
@@ -37,16 +39,16 @@
     button { font: inherit; }
 
     .app {
-      width: min(1440px, 100%);
+      width: min(1240px, 100%);
       margin: 0 auto;
-      padding: 10px 20px 12px;
+      padding: 12px 16px 8px;
     }
 
     .topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      min-height: 38px;
+      min-height: 40px;
       gap: 20px;
     }
 
@@ -61,38 +63,38 @@
       height: 12px;
       background: var(--blue);
       border-radius: 50%;
+      box-shadow: 0 0 0 5px rgba(37, 99, 235, .1);
     }
 
     .brand h1 {
       margin: 0;
-      font-size: 20px;
+      font-size: 22px;
       line-height: 1.1;
-      letter-spacing: -.025em;
+      letter-spacing: 0;
     }
 
     .brand p {
-      margin: 3px 0 0;
-      color: var(--muted);
-      font-size: 11px;
+      display: none;
     }
 
     .clock {
       color: var(--muted);
-      font-size: 11px;
+      font-size: 12px;
       text-align: right;
     }
 
     .overview {
       display: grid;
-      grid-template-columns: minmax(210px, .7fr) minmax(260px, 1fr) auto;
+      grid-template-columns: minmax(190px, 240px) minmax(360px, 1fr);
       align-items: center;
-      gap: 24px;
-      min-height: 48px;
-      margin: 6px 0 8px;
+      gap: 20px;
+      min-height: 50px;
+      margin: 7px 0 7px;
       padding: 8px 12px;
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 12px;
+      box-shadow: var(--shadow);
     }
 
     .next {
@@ -103,14 +105,15 @@
     }
 
     .next strong {
-      font-size: 20px;
+      font-size: 24px;
+      line-height: .95;
       white-space: nowrap;
     }
 
     .next span {
       overflow: hidden;
       color: var(--muted);
-      font-size: 11px;
+      font-size: 12px;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
@@ -120,16 +123,37 @@
     .progress-copy {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       color: var(--muted);
-      font-size: 10px;
+      font-size: 12px;
     }
 
     .progress-track {
-      height: 5px;
+      height: 6px;
       overflow: hidden;
       background: var(--soft);
       border-radius: 99px;
+    }
+
+    .progress-track.timeline {
+      height: 64px;
+      overflow: hidden;
+      background: transparent;
+      border-radius: 0;
+    }
+
+    .timeline-label {
+      position: absolute;
+      padding: 2px 5px;
+      color: var(--text);
+      background: rgba(255, 255, 255, .96);
+      border: 1px solid #dfe3dc;
+      border-radius: 5px;
+      font-size: 10px;
+      font-weight: 750;
+      line-height: 1.2;
+      white-space: nowrap;
+      z-index: 4;
     }
 
     .progress-fill {
@@ -140,14 +164,7 @@
       transition: width .3s ease;
     }
 
-    .difficulty-legend {
-      display: flex;
-      align-items: center;
-      gap: 13px;
-      color: var(--muted);
-      font-size: 10px;
-      white-space: nowrap;
-    }
+    .difficulty-legend { display: none; }
 
     .legend-item, .difficulty {
       display: inline-flex;
@@ -156,8 +173,8 @@
     }
 
     .dot {
-      width: 8px;
-      height: 8px;
+      width: 9px;
+      height: 9px;
       flex: 0 0 auto;
       border-radius: 50%;
       background: var(--difficulty);
@@ -167,42 +184,36 @@
     .dot.medium, .difficulty.medium { --difficulty: var(--amber); }
     .dot.light, .difficulty.light { --difficulty: var(--green); }
 
-    .section-head {
-      display: flex;
-      align-items: end;
-      justify-content: space-between;
-      gap: 20px;
-      margin-bottom: 5px;
-    }
+    .section-head { display: none; }
 
     .section-head h2 {
       margin: 0;
-      font-size: 14px;
-      letter-spacing: -.01em;
+      font-size: 16px;
+      letter-spacing: 0;
     }
 
     .section-head p {
       margin: 0;
       color: var(--muted);
-      font-size: 10px;
+      display: none;
     }
 
     .week-list {
       display: grid;
-      gap: 5px;
+      gap: 6px;
     }
 
     .week-row {
       display: grid;
-      grid-template-columns: 78px minmax(0, 1fr);
-      gap: 9px;
+      grid-template-columns: 82px minmax(0, 1fr);
+      gap: 10px;
       align-items: stretch;
     }
 
     .week-label {
       display: flex;
       justify-content: center;
-      padding: 8px 6px;
+      padding: 7px 6px;
       flex-direction: column;
       color: var(--muted);
       text-align: center;
@@ -210,19 +221,19 @@
 
     .week-label strong {
       color: var(--text);
-      font-size: 11px;
+      font-size: 12px;
     }
 
     .week-label span {
       margin-top: 3px;
-      font-size: 8px;
+      font-size: 10px;
       line-height: 1.25;
     }
 
     .week-cards {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 7px;
+      gap: 6px;
       min-width: 0;
     }
 
@@ -237,30 +248,32 @@
       text-align: left;
       background: var(--card);
       border: 1px solid var(--line);
-      border-radius: 10px;
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(23, 25, 31, .04);
       cursor: text;
       user-select: text;
       -webkit-user-select: text;
     }
 
-    .subject-card[data-status="preparing"] { background: #fffdf4; }
-    .subject-card[data-status="ready"] { background: #f4f7ff; }
-    .subject-card[data-status="waiting"] { background: #fffdf4; }
-    .subject-card[data-status="good"] { background: #f1faf3; border-color: #a8d9b3; }
-    .subject-card[data-status="average"] { background: #f4f7ff; border-color: #cddbfe; }
-    .subject-card[data-status="bad"] { background: #fff4f3; border-color: #f0b6b1; }
-    .subject-card[data-status="failed"] { background: #fee2e2; border-color: #fca5a5; }
+    .subject-card[data-status="preparing"] { background: #fffdf6; border-color: #e2dccb; }
+    .subject-card[data-status="ready"] { background: #f4f7ff; border-color: #bfcbeb; }
+    .subject-card[data-status="waiting"] { background: #fffdf6; border-color: #e2dccb; }
+    .subject-card[data-status="good"] { background: #f0faf4; border-color: #92cfa6; }
+    .subject-card[data-status="average"] { background: #f4f7ff; border-color: #b8c6ee; }
+    .subject-card[data-status="bad"] { background: #fff4f2; border-color: #eda8a1; }
+    .subject-card[data-status="failed"] { background: #fee1e1; border-color: #ee8f8f; }
     .subject-card[data-status="cancelled"] { opacity: .58; }
 
     .mode-toggle {
       background: var(--card);
       border: 1px solid var(--line);
-      border-radius: 6px;
-      padding: 4px 10px;
-      font-size: 11px;
+      border-radius: 7px;
+      padding: 5px 10px;
+      font-size: 12px;
       color: var(--text);
       cursor: pointer;
-      font-weight: 500;
+      font-weight: 650;
+      box-shadow: 0 1px 2px rgba(23, 25, 31, .04);
     }
     .mode-toggle:hover {
       background: var(--soft);
@@ -268,7 +281,7 @@
     .topbar-controls {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       text-align: right;
     }
 
@@ -276,38 +289,45 @@
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      gap: 8px;
+      gap: 6px;
+      margin-bottom: 4px;
     }
 
     .subject-title {
       display: flex;
       align-items: center;
       min-width: 0;
-      gap: 7px;
+      gap: 6px;
     }
 
     .subject-title h3 {
       overflow: hidden;
       margin: 0;
-      font-size: 13px;
+      font-size: 14px;
       line-height: 1.2;
-      letter-spacing: -.015em;
+      letter-spacing: 0;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
     .state {
       flex: 0 0 auto;
-      padding: 2px 5px;
-      color: var(--muted);
-      background: var(--soft);
-      border: 0;
-      border-radius: 5px;
+      padding: 3px 6px;
+      color: #5e636b;
+      background: rgba(255, 255, 255, .72);
+      border: 1px solid rgba(98, 105, 113, .14);
+      border-radius: 6px;
       cursor: pointer;
-      font-size: 7px;
+      font-size: 9px;
       font-weight: 700;
-      letter-spacing: .04em;
+      letter-spacing: .08em;
       text-transform: uppercase;
+    }
+
+    .state:hover {
+      color: var(--text);
+      background: #ffffff;
+      border-color: #c9cec6;
     }
 
     .state:focus-visible {
@@ -319,16 +339,16 @@
       display: flex;
       flex-wrap: wrap;
       gap: 4px;
-      margin: 3px 0;
+      margin: 0 0 4px;
     }
 
     .tag {
       padding: 2px 6px;
-      color: #5f5f59;
-      background: #f5f5f2;
-      border: 1px solid #e7e7e1;
+      color: #545a62;
+      background: rgba(255, 255, 255, .65);
+      border: 1px solid rgba(98, 105, 113, .14);
       border-radius: 5px;
-      font-size: 8px;
+      font-size: 9px;
       line-height: 1.35;
     }
 
@@ -342,14 +362,17 @@
 
     .milestone {
       display: grid;
-      grid-template-columns: 43px minmax(0, 1fr) auto;
+      grid-template-columns: 48px minmax(0, 1fr) auto;
       align-items: baseline;
       gap: 6px;
-      font-size: 9px;
-      line-height: 1.25;
+      font-size: 10px;
+      line-height: 1.22;
     }
 
-    .milestone time { font-weight: 700; }
+    .milestone time {
+      color: var(--text);
+      font-weight: 750;
+    }
 
     .milestone-name {
       overflow: hidden;
@@ -360,20 +383,21 @@
 
     .countdown {
       color: var(--blue);
-      font-size: 8px;
+      font-size: 10px;
       font-weight: 700;
       white-space: nowrap;
     }
 
     .notes {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 3px 8px;
+      display: block;
+      overflow: hidden;
       margin: 0;
-      padding-top: 2px;
+      padding-top: 3px;
       color: var(--muted);
       font-size: 8px;
-      line-height: 1.3;
+      line-height: 1.15;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .note + .note::before {
@@ -384,20 +408,55 @@
 
     .notes:empty { display: none; }
 
+    .tomato {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 6px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      box-shadow: 0 1px 2px rgba(23, 25, 31, .04);
+    }
+
+    .tomato-time {
+      min-width: 40px;
+      color: var(--red);
+      font-size: 12px;
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+      text-align: center;
+    }
+
+    .tomato button {
+      width: 22px;
+      height: 22px;
+      padding: 0;
+      color: var(--text);
+      background: var(--soft);
+      border: 1px solid rgba(98, 105, 113, .14);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .tomato button:hover { background: var(--soft-strong); }
+
     @media (max-width: 1080px) {
       .app { padding-inline: 18px; }
       .overview { grid-template-columns: minmax(190px, .7fr) minmax(220px, 1fr); }
-      .difficulty-legend { grid-column: 1 / -1; justify-content: flex-end; }
+      .week-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     }
 
     @media (max-width: 880px) {
       .overview { grid-template-columns: 1fr; gap: 10px; }
-      .difficulty-legend { grid-column: auto; justify-content: flex-start; }
       .week-row { grid-template-columns: 1fr; gap: 5px; }
       .week-label {
         align-items: baseline;
         justify-content: flex-start;
-        padding: 6px 8px;
+        padding: 6px 2px;
         flex-direction: row;
         gap: 7px;
         text-align: left;
@@ -414,17 +473,18 @@
         scrollbar-width: thin;
         -webkit-overflow-scrolling: touch;
       }
-      .subject-card { scroll-snap-align: start; }
+      .subject-card { min-height: 92px; scroll-snap-align: start; }
     }
 
     @media (max-width: 560px) {
       .app { padding: 13px 12px 18px; }
       .topbar { align-items: flex-start; }
-      .brand h1 { font-size: 18px; }
+      .brand h1 { font-size: 20px; }
       .brand p { display: none; }
-      .clock { max-width: 130px; font-size: 9px; }
+      .clock { max-width: 130px; font-size: 11px; }
+      .topbar-controls { flex-wrap: wrap; justify-content: flex-end; }
       .overview { margin-top: 7px; padding: 10px; }
-      .next strong { font-size: 18px; }
+      .next strong { font-size: 24px; }
       .week-cards { grid-auto-columns: minmax(280px, 88vw); }
       .section-head { align-items: flex-start; flex-direction: column; gap: 3px; }
     }
@@ -445,6 +505,11 @@
         </div>
       </div>
       <div class="topbar-controls">
+        <div class="tomato" aria-label="Tomato timer">
+          <span class="tomato-time" id="tomato-time">25:00</span>
+          <button id="tomato-toggle" type="button" onclick="toggleTomato()" aria-label="Start tomato timer">▶</button>
+          <button type="button" onclick="resetTomato()" aria-label="Reset tomato timer">↺</button>
+        </div>
         <button id="mode-toggle" class="mode-toggle" onclick="toggleMode()">Mode: Prep</button>
         <time class="clock" id="current-time">Loading…</time>
       </div>
@@ -459,29 +524,15 @@
         <div class="progress-copy"><span id="completion-copy">0 of 11 subjects complete</span><span id="run-copy">0% of exam period</span></div>
         <div class="progress-track" id="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
       </div>
-      <div class="difficulty-legend" aria-label="Difficulty legend">
-        <span class="legend-item"><i class="dot hard"></i>Hard</span>
-        <span class="legend-item"><i class="dot medium"></i>Medium</span>
-        <span class="legend-item"><i class="dot light"></i>Light</span>
-      </div>
     </section>
 
     <div class="section-head">
       <h2>Subjects & deadlines</h2>
-      <p>Every exact date has its own countdown · click a card to change status</p>
     </div>
     <section class="week-list" id="week-list" aria-label="Subjects grouped by week"></section>
   </main>
 
   <script>
-    const WEEKS = [
-      { id: "29", label: "Week 29", range: "13–19 Jul" },
-      { id: "30", label: "Week 30", range: "20–26 Jul" },
-      { id: "31", label: "Week 31", range: "27 Jul–02 Aug" },
-      { id: "32", label: "Week 32", range: "03–09 Aug" },
-      { id: "36", label: "Week 36", range: "31 Aug–06 Sep" }
-    ];
-
     const SUBJECTS = [
       {
         id: "ai1016-presentation", name: "Presentations", difficulty: "light", required: "Core",
@@ -556,11 +607,14 @@
     ];
 
     const MODE_PREP_STATES = ["todo", "preparing", "ready"];
-    const MODE_PREP_LABELS = { todo: "To do", preparing: "Preparing", ready: "Ready" };
+    const MODE_PREP_LABELS = { todo: "Todo", preparing: "Prep", ready: "Ready" };
     const MODE_POST_STATES = ["waiting", "good", "average", "bad", "failed", "cancelled"];
     const MODE_POST_LABELS = { waiting: "Waiting", good: "Good", average: "Average", bad: "Bad", failed: "Failed", cancelled: "Cancelled" };
     
     let currentMode = localStorage.getItem("exam_mode") || "prep";
+    let tomatoLeft = Number(localStorage.getItem("tomato_left")) || 25 * 60;
+    let tomatoRunning = false;
+    let tomatoTick = null;
 
     function getActiveStates() { return currentMode === "prep" ? MODE_PREP_STATES : MODE_POST_STATES; }
     function getActiveLabels() { return currentMode === "prep" ? MODE_PREP_LABELS : MODE_POST_LABELS; }
@@ -571,10 +625,71 @@
       render();
     }
 
+    function renderTomato() {
+      const minutes = String(Math.floor(tomatoLeft / 60)).padStart(2, "0");
+      const seconds = String(tomatoLeft % 60).padStart(2, "0");
+      document.getElementById("tomato-time").textContent = `${minutes}:${seconds}`;
+      document.getElementById("tomato-toggle").textContent = tomatoRunning ? "Ⅱ" : "▶";
+      document.getElementById("tomato-toggle").setAttribute("aria-label", tomatoRunning ? "Pause tomato timer" : "Start tomato timer");
+    }
+
+    function toggleTomato() {
+      tomatoRunning = !tomatoRunning;
+      if (tomatoRunning) {
+        tomatoTick = setInterval(() => {
+          tomatoLeft = Math.max(0, tomatoLeft - 1);
+          localStorage.setItem("tomato_left", tomatoLeft);
+          renderTomato();
+          if (tomatoLeft === 0) {
+            clearInterval(tomatoTick);
+            tomatoRunning = false;
+            renderTomato();
+          }
+        }, 1000);
+      } else {
+        clearInterval(tomatoTick);
+      }
+      renderTomato();
+    }
+
+    function resetTomato() {
+      clearInterval(tomatoTick);
+      tomatoRunning = false;
+      tomatoLeft = 25 * 60;
+      localStorage.setItem("tomato_left", tomatoLeft);
+      renderTomato();
+    }
+
     const DIFFICULTY_LABELS = { hard: "Hard", medium: "Medium", light: "Light" };
+    const SHORT_FORMATS = {
+      "Presentation + project": "Pres + proj",
+      "Written exam + testat": "Exam + testat",
+      "Written exam": "Exam",
+      "Project + computer exam": "Proj + comp",
+      "Project + written exam": "Proj + exam"
+    };
+    const SHORT_LABELS = {
+      "Written exam": "Exam",
+      "Portfolio deadline": "Portfolio",
+      "Project deadline": "Project",
+      "Submission & exam": "Submit + exam",
+      "Project / Exposé": "Project"
+    };
+    const SHORT_NOTES = {
+      "Results: late July": "Results late Jul",
+      "Results: August": "Results Aug",
+      "Results: late August": "Results late Aug",
+      "Results: late September": "Results late Sep",
+      "Cheat sheet allowed": "Sheet ok",
+      "Cheat sheet on disk allowed": "Disk sheet ok",
+      "No cheat sheet or exam bonus": "No sheet/bonus",
+      "Testat 40% — full": "Testat 40%",
+      "+0.6 grade bonus": "+0.6 bonus"
+    };
     const DAY = 86400000;
     const PERIOD_START = parseDate("2026-06-23");
     const PERIOD_END = parseDate("2026-08-07");
+    const LAST_STUDY_DAY = parseDate("2026-07-17");
 
     function parseDate(value) {
       const [year, month, day] = value.split("-").map(Number);
@@ -596,6 +711,41 @@
 
     function dateLabel(value) {
       return parseDate(value).toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+    }
+
+    function mondayStart(date) {
+      const monday = new Date(date);
+      const day = (monday.getDay() + 6) % 7;
+      monday.setDate(monday.getDate() - day);
+      return new Date(monday.getFullYear(), monday.getMonth(), monday.getDate(), 12);
+    }
+
+    function weekId(value) {
+      return mondayStart(parseDate(value)).toISOString().slice(0, 10);
+    }
+
+    function weekNumber(date) {
+      const target = new Date(date);
+      target.setHours(0, 0, 0, 0);
+      target.setDate(target.getDate() + 3 - ((target.getDay() + 6) % 7));
+      const week1 = new Date(target.getFullYear(), 0, 4);
+      return 1 + Math.round(((target - week1) / DAY - 3 + ((week1.getDay() + 6) % 7)) / 7);
+    }
+
+    function compactRange(start) {
+      const end = new Date(start);
+      end.setDate(end.getDate() + 6);
+      const startLabel = start.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+      const endLabel = end.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+      return `${startLabel}–${endLabel}`;
+    }
+
+    function getWeeks() {
+      const starts = [...new Set(allEvents().map(event => weekId(event.date)))].sort();
+      return starts.map(id => {
+        const start = parseDate(id);
+        return { id, label: `Week ${weekNumber(start)}`, range: compactRange(start) };
+      });
     }
 
     function getStatus(id) {
@@ -630,10 +780,10 @@
       if (next) {
         const days = daysFromNow(next.date, now);
         count.textContent = days === 0 ? "Today" : `${days}d`;
-        label.textContent = `until ${next.subject} · ${next.label}`;
+        label.textContent = `${next.subject} · ${SHORT_LABELS[next.label] || next.label}`;
       } else {
         count.textContent = "Done";
-        label.textContent = "the exam period is complete";
+        label.textContent = "complete";
       }
 
       const done = SUBJECTS.filter(subject => {
@@ -646,7 +796,7 @@
       const progressTrack = document.getElementById("progress-track");
       
       if (currentMode === "prep") {
-        completionCopy.textContent = "Exam timeline";
+        completionCopy.textContent = "";
         
         const allEvs = allEvents();
         const examDates = new Set(allEvs.filter(e => e.label.toLowerCase().includes("exam")).map(e => parseDate(e.date).getTime()));
@@ -655,7 +805,7 @@
         
         const totalDuration = PERIOD_END - PERIOD_START;
         
-        let trackHTML = "";
+        let trackHTML = `<div style="position: absolute; left: 0; right: 0; top: 16px; height: 5px; background: var(--soft); border-radius: 99px; z-index: 0;"></div>`;
         
         // Week dividers (Mondays)
         let d = new Date(PERIOD_START.getTime());
@@ -668,59 +818,65 @@
           let pctStart = Math.max(0, ((d.getTime() - PERIOD_START) / totalDuration) * 100);
           let pctEnd = Math.min(100, ((nextD.getTime() - PERIOD_START) / totalDuration) * 100);
           
-          if (weekIndex % 2 === 0) {
-             trackHTML += `<div style="position: absolute; left: ${pctStart}%; top: -4px; height: 13px; width: ${pctEnd - pctStart}%; background: rgba(0,0,0,0.03); z-index: 0; border-radius: 2px;"></div>`;
-          }
-          trackHTML += `<div style="position: absolute; left: ${pctStart}%; top: -4px; height: 13px; width: 1px; border-left: 1px dashed #cfcfc8; z-index: 0;"></div>`;
+          trackHTML += `<div style="position: absolute; left: ${pctStart}%; top: 11px; height: 15px; width: 1px; border-left: 1px solid #d5dad1; z-index: 1;"></div>`;
           d = nextD;
           weekIndex++;
         }
         
+        const studyPct = Math.max(0, Math.min(100, ((LAST_STUDY_DAY - PERIOD_START) / totalDuration) * 100));
+        trackHTML += `<div style="position: absolute; left: ${studyPct}%; top: 8px; height: 18px; width: 2px; background: #0f766e; transform: translateX(-50%); z-index: 4; border-radius: 2px;" title="17 Jul"></div>`;
+        trackHTML += `<div class="timeline-label" style="left: ${studyPct}%; top: 0; color: #0f766e; transform: translateX(-50%);">17 Jul</div>`;
+
+        let lastLabelPct = -100;
         uniqueDateTimes.forEach(t => {
            let pct = ((t - PERIOD_START) / totalDuration) * 100;
            pct = Math.max(0, Math.min(100, pct));
            const isExam = examDates.has(t);
-           const color = t < now ? "var(--muted)" : (isExam ? "var(--blue)" : "var(--amber)");
-           const dotSize = isExam ? "5px" : "3px";
-           const fontSize = isExam ? "9px" : "7px";
-           const topOffset = isExam ? "7px" : "9px";
-           const fontWeight = isExam ? "600" : "500";
-           const dateStr = new Date(t).getDate();
+           const color = t < now ? "#626973" : (isExam ? "var(--blue)" : "var(--amber)");
+           const dotSize = isExam ? "7px" : "5px";
+           const title = new Date(t).toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+           const labelTransform = pct > 96 ? "translateX(-100%)" : (pct < 4 ? "translateX(0)" : "translateX(-50%)");
+           const showLabel = pct - lastLabelPct >= 8;
            
-           trackHTML += `<div style="position: absolute; left: ${pct}%; top: 0; height: 100%; width: ${dotSize}; background: ${color}; border-radius: ${dotSize}; transform: translateX(-50%); z-index: 2;"></div>`;
-           trackHTML += `<div style="position: absolute; left: ${pct}%; top: ${topOffset}; font-size: ${fontSize}; font-weight: ${fontWeight}; color: ${color}; transform: translateX(-50%); z-index: 2;">${dateStr}</div>`;
+           trackHTML += `<div title="${title}" style="position: absolute; left: ${pct}%; top: 18px; height: ${dotSize}; width: ${dotSize}; background: ${color}; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(23,25,31,.08); border-radius: 999px; transform: translate(-50%, -50%); z-index: 3;"></div>`;
+           if (showLabel) {
+             trackHTML += `<div class="timeline-label" style="left: ${pct}%; top: 34px; transform: ${labelTransform};">${title}</div>`;
+             lastLabelPct = pct;
+           }
         });
         
         let todayPct = ((now - PERIOD_START) / totalDuration) * 100;
         todayPct = Math.max(0, Math.min(100, todayPct));
         
         // Shaded bar for elapsed time
-        trackHTML += `<div style="position: absolute; left: 0; top: 0; height: 100%; width: ${todayPct}%; background: rgba(239, 68, 68, 0.15); border-radius: 99px; z-index: 1;"></div>`;
+        trackHTML += `<div style="position: absolute; left: 0; top: 16px; height: 5px; width: ${todayPct}%; background: rgba(226, 63, 63, 0.16); border-radius: 99px; z-index: 2;"></div>`;
         
         if (todayPct >= 0 && todayPct <= 100) {
-           trackHTML += `<div style="position: absolute; left: ${todayPct}%; top: -1px; height: 7px; width: 2px; background: var(--text); transform: translateX(-50%); z-index: 3;" title="Today"></div>`;
+           trackHTML += `<div style="position: absolute; left: ${todayPct}%; top: 10px; height: 16px; width: 2px; background: var(--text); transform: translateX(-50%); z-index: 4; border-radius: 2px;" title="Today"></div>`;
         }
         
         progressTrack.innerHTML = trackHTML;
+        progressTrack.classList.add("timeline");
         progressTrack.style.position = "relative";
-        progressTrack.style.overflow = "visible";
-        document.querySelector(".progress-wrap").style.margin = "12px 0";
+        progressTrack.style.overflow = "hidden";
+        document.querySelector(".progress-wrap").style.margin = "0";
       } else {
-        completionCopy.textContent = `${done} of ${SUBJECTS.length} subjects complete`;
+        completionCopy.textContent = `${done}/${SUBJECTS.length} done`;
         progressTrack.innerHTML = `<div class="progress-fill" id="progress-fill" style="width: ${completion}%"></div>`;
+        progressTrack.classList.remove("timeline");
         progressTrack.style.position = "relative";
         progressTrack.style.overflow = "hidden";
         document.querySelector(".progress-wrap").style.margin = "0";
       }
       
-      document.getElementById("run-copy").textContent = `${Math.round(elapsed)}% of exam period`;
+      document.getElementById("run-copy").textContent = `${Math.round(elapsed)}%`;
     }
 
     function renderCards(now) {
       const list = document.getElementById("week-list");
       list.innerHTML = "";
 
-      WEEKS.forEach(week => {
+      getWeeks().forEach(week => {
         const row = document.createElement("section");
         row.className = "week-row";
         row.setAttribute("aria-labelledby", `week-${week.id}`);
@@ -732,33 +888,33 @@
         const cards = row.querySelector(".week-cards");
 
         SUBJECTS.forEach(subject => {
-          const weekMilestones = subject.milestones.filter(milestone => milestone.week === week.id);
+          const weekMilestones = subject.milestones.filter(milestone => weekId(milestone.date) === week.id);
           if (!weekMilestones.length) return;
         const activeLabels = getActiveLabels();
         const status = getStatus(subject.id);
         const card = document.createElement("article");
         card.className = "subject-card";
         card.dataset.status = status;
-        card.setAttribute("aria-label", `${subject.name}, ${week.label}. ${DIFFICULTY_LABELS[subject.difficulty]} difficulty. Status: ${activeLabels[status]}.`);
+        card.setAttribute("aria-label", `${subject.name}, ${week.label}. Status: ${activeLabels[status]}.`);
 
         const milestones = weekMilestones.map(milestone => `
           <li class="milestone">
             <time datetime="${milestone.date}">${dateLabel(milestone.date)}</time>
-            <span class="milestone-name">${milestone.label}</span>
+            <span class="milestone-name">${SHORT_LABELS[milestone.label] || milestone.label}</span>
             <span class="countdown">${countdown(milestone.date, now)}</span>
           </li>`).join("");
         const weekNotes = [...new Set(weekMilestones.flatMap(milestone => milestone.notes || []))];
-        const notes = weekNotes.map(note => `<span class="note">${note}</span>`).join("");
+        const notes = weekNotes.map(note => `<span class="note">${SHORT_NOTES[note] || note}</span>`).join("");
 
         card.innerHTML = `
           <div class="card-head">
             <div class="subject-title">
-              <span class="difficulty ${subject.difficulty}" title="${DIFFICULTY_LABELS[subject.difficulty]} difficulty"><i class="dot"></i></span>
+              <span class="difficulty ${subject.difficulty}" title="${DIFFICULTY_LABELS[subject.difficulty]}"><i class="dot"></i></span>
               <h3>${subject.name}</h3>
             </div>
             <button class="state" type="button" title="Change status" aria-label="Change ${subject.name} status from ${activeLabels[status]}">${activeLabels[status]}</button>
           </div>
-          <div class="tags"><span class="tag">${subject.required}</span><span class="tag">${subject.format}</span></div>
+          <div class="tags"><span class="tag">${subject.required}</span><span class="tag">${SHORT_FORMATS[subject.format] || subject.format}</span></div>
           <ul class="milestones">${milestones}</ul>
           <div class="notes">${notes}</div>`;
           card.querySelector(".state").addEventListener("click", () => cycleStatus(subject.id));
@@ -770,12 +926,13 @@
 
     function render() {
       const now = new Date();
-      document.getElementById("mode-toggle").textContent = currentMode === "prep" ? "Mode: Prep" : "Mode: Post-exam";
+      document.getElementById("mode-toggle").textContent = currentMode === "prep" ? "Prep" : "Post";
       document.getElementById("current-time").textContent = now.toLocaleString("en-GB", {
         weekday: "short", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Berlin"
       }) + " · Berlin";
       renderOverview(now);
       renderCards(now);
+      renderTomato();
     }
 
     render();
