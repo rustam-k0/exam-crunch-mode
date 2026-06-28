@@ -654,24 +654,38 @@
         
         let trackHTML = "";
         
+        // Week dividers (Mondays)
+        let d = new Date(PERIOD_START.getTime());
+        while (d.getDay() !== 1) d.setDate(d.getDate() + 1);
+        while (d <= PERIOD_END) {
+          let pct = ((d.getTime() - PERIOD_START) / totalDuration) * 100;
+          trackHTML += `<div style="position: absolute; left: ${pct}%; top: -2px; height: 9px; width: 1px; background: #cfcfc8; z-index: 0;"></div>`;
+          d.setDate(d.getDate() + 7);
+        }
+        
         uniqueDateTimes.forEach(t => {
            let pct = ((t - PERIOD_START) / totalDuration) * 100;
            pct = Math.max(0, Math.min(100, pct));
            const color = t < now ? "var(--muted)" : "var(--blue)";
-           trackHTML += `<div style="position: absolute; left: ${pct}%; top: 0; height: 100%; width: 5px; background: ${color}; border-radius: 5px; transform: translateX(-50%); z-index: 1;"></div>`;
+           const dateStr = new Date(t).getDate();
+           
+           trackHTML += `<div style="position: absolute; left: ${pct}%; top: 0; height: 100%; width: 5px; background: ${color}; border-radius: 5px; transform: translateX(-50%); z-index: 2;"></div>`;
+           trackHTML += `<div style="position: absolute; left: ${pct}%; top: 7px; font-size: 8px; font-weight: 600; color: ${color}; transform: translateX(-50%); z-index: 2;">${dateStr}</div>`;
         });
         
         let todayPct = ((now - PERIOD_START) / totalDuration) * 100;
         if (todayPct >= 0 && todayPct <= 100) {
-           trackHTML += `<div style="position: absolute; left: ${todayPct}%; top: 0; height: 100%; width: 2px; background: var(--text); transform: translateX(-50%); z-index: 2;"></div>`;
+           trackHTML += `<div style="position: absolute; left: ${todayPct}%; top: -1px; height: 7px; width: 2px; background: var(--text); transform: translateX(-50%); z-index: 3;" title="Today"></div>`;
         }
         
         progressTrack.innerHTML = trackHTML;
         progressTrack.style.position = "relative";
+        progressTrack.style.overflow = "visible";
       } else {
         completionCopy.textContent = `${done} of ${SUBJECTS.length} subjects complete`;
         progressTrack.innerHTML = `<div class="progress-fill" id="progress-fill" style="width: ${completion}%"></div>`;
         progressTrack.style.position = "relative";
+        progressTrack.style.overflow = "hidden";
       }
       
       document.getElementById("run-copy").textContent = `${Math.round(elapsed)}% of exam period`;
