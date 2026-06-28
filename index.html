@@ -824,7 +824,7 @@
         }
         
         const studyPct = Math.max(0, Math.min(100, ((LAST_STUDY_DAY - PERIOD_START) / totalDuration) * 100));
-        trackHTML += `<div style="position: absolute; left: ${studyPct}%; top: 8px; height: 18px; width: 2px; background: #0f766e; transform: translateX(-50%); z-index: 4; border-radius: 2px;" title="17 Jul"></div>`;
+        trackHTML += `<div style="position: absolute; left: ${studyPct}%; top: 18px; height: 8px; width: 2px; background: #0f766e; transform: translateX(-50%); z-index: 4; border-radius: 2px;" title="17 Jul"></div>`;
         trackHTML += `<div class="timeline-label" style="left: ${studyPct}%; top: 0; color: #0f766e; transform: translateX(-50%);">17 Jul</div>`;
 
         let lastLabelPct = -100;
@@ -875,11 +875,15 @@
     function renderCards(now) {
       const list = document.getElementById("week-list");
       list.innerHTML = "";
+      const renderedSubjects = new Set();
 
       getWeeks().forEach(week => {
         const row = document.createElement("section");
         row.className = "week-row";
         row.setAttribute("aria-labelledby", `week-${week.id}`);
+        
+        let hasCards = false;
+        
         row.innerHTML = `
           <div class="week-label" id="week-${week.id}">
             <strong>${week.label}</strong><span>${week.range}</span>
@@ -888,39 +892,48 @@
         const cards = row.querySelector(".week-cards");
 
         SUBJECTS.forEach(subject => {
-          const weekMilestones = subject.milestones.filter(milestone => weekId(milestone.date) === week.id);
-          if (!weekMilestones.length) return;
-        const activeLabels = getActiveLabels();
-        const status = getStatus(subject.id);
-        const card = document.createElement("article");
-        card.className = "subject-card";
-        card.dataset.status = status;
-        card.setAttribute("aria-label", `${subject.name}, ${week.label}. Status: ${activeLabels[status]}.`);
+          if (renderedSubjects.has(subject.id)) return;
+          
+          const subjectFirstWeek = subject.milestones.map(m => weekId(m.date)).sort()[0];
+          if (subjectFirstWeek !== week.id) return;
+          
+          renderedSubjects.add(subject.id);
+          hasCards = true;
 
-        const milestones = weekMilestones.map(milestone => `
-          <li class="milestone">
-            <time datetime="${milestone.date}">${dateLabel(milestone.date)}</time>
-            <span class="milestone-name">${SHORT_LABELS[milestone.label] || milestone.label}</span>
-            <span class="countdown">${countdown(milestone.date, now)}</span>
-          </li>`).join("");
-        const weekNotes = [...new Set(weekMilestones.flatMap(milestone => milestone.notes || []))];
-        const notes = weekNotes.map(note => `<span class="note">${SHORT_NOTES[note] || note}</span>`).join("");
+          const activeLabels = getActiveLabels();
+          const status = getStatus(subject.id);
+          const card = document.createElement("article");
+          card.className = "subject-card";
+          card.dataset.status = status;
+          card.setAttribute("aria-label", `${subject.name}, ${week.label}. Status: ${activeLabels[status]}.`);
 
-        card.innerHTML = `
-          <div class="card-head">
-            <div class="subject-title">
-              <span class="difficulty ${subject.difficulty}" title="${DIFFICULTY_LABELS[subject.difficulty]}"><i class="dot"></i></span>
-              <h3>${subject.name}</h3>
+          const milestones = subject.milestones.map(milestone => `
+            <li class="milestone">
+              <time datetime="${milestone.date}">${dateLabel(milestone.date)}</time>
+              <span class="milestone-name">${SHORT_LABELS[milestone.label] || milestone.label}</span>
+              <span class="countdown">${countdown(milestone.date, now)}</span>
+            </li>`).join("");
+          const subjectNotes = [...new Set(subject.milestones.flatMap(milestone => milestone.notes || []))];
+          const notes = subjectNotes.map(note => `<span class="note">${SHORT_NOTES[note] || note}</span>`).join("");
+
+          card.innerHTML = `
+            <div class="card-head">
+              <div class="subject-title">
+                <span class="difficulty ${subject.difficulty}" title="${DIFFICULTY_LABELS[subject.difficulty]}"><i class="dot"></i></span>
+                <h3>${subject.name}</h3>
+              </div>
+              <button class="state" type="button" title="Change status" aria-label="Change ${subject.name} status from ${activeLabels[status]}">${activeLabels[status]}</button>
             </div>
-            <button class="state" type="button" title="Change status" aria-label="Change ${subject.name} status from ${activeLabels[status]}">${activeLabels[status]}</button>
-          </div>
-          <div class="tags"><span class="tag">${subject.required}</span><span class="tag">${SHORT_FORMATS[subject.format] || subject.format}</span></div>
-          <ul class="milestones">${milestones}</ul>
-          <div class="notes">${notes}</div>`;
+            <div class="tags"><span class="tag">${subject.required}</span><span class="tag">${SHORT_FORMATS[subject.format] || subject.format}</span></div>
+            <ul class="milestones">${milestones}</ul>
+            <div class="notes">${notes}</div>`;
           card.querySelector(".state").addEventListener("click", () => cycleStatus(subject.id));
           cards.appendChild(card);
         });
-        list.appendChild(row);
+        
+        if (hasCards) {
+          list.appendChild(row);
+        }
       });
     }
 
