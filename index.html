@@ -648,8 +648,11 @@
       if (currentMode === "prep") {
         completionCopy.textContent = "Exam timeline";
         
-        const exams = allEvents().filter(e => e.label.toLowerCase().includes("exam"));
-        const uniqueDateTimes = [...new Set(exams.map(e => parseDate(e.date).getTime()))];
+        const allEvs = allEvents();
+        const examDates = new Set(allEvs.filter(e => e.label.toLowerCase().includes("exam")).map(e => parseDate(e.date).getTime()));
+        const deadlineDates = new Set(allEvs.filter(e => !e.result && !e.label.toLowerCase().includes("results") && !e.label.toLowerCase().includes("exam")).map(e => parseDate(e.date).getTime()));
+        const uniqueDateTimes = [...new Set([...examDates, ...deadlineDates])].sort((a,b) => a - b);
+        
         const totalDuration = PERIOD_END - PERIOD_START;
         
         let trackHTML = "";
@@ -666,11 +669,16 @@
         uniqueDateTimes.forEach(t => {
            let pct = ((t - PERIOD_START) / totalDuration) * 100;
            pct = Math.max(0, Math.min(100, pct));
-           const color = t < now ? "var(--muted)" : "var(--blue)";
+           const isExam = examDates.has(t);
+           const color = t < now ? "var(--muted)" : (isExam ? "var(--blue)" : "var(--amber)");
+           const dotSize = isExam ? "5px" : "3px";
+           const fontSize = isExam ? "8px" : "7px";
+           const topOffset = isExam ? "7px" : "8px";
+           const fontWeight = isExam ? "600" : "500";
            const dateStr = new Date(t).getDate();
            
-           trackHTML += `<div style="position: absolute; left: ${pct}%; top: 0; height: 100%; width: 5px; background: ${color}; border-radius: 5px; transform: translateX(-50%); z-index: 2;"></div>`;
-           trackHTML += `<div style="position: absolute; left: ${pct}%; top: 7px; font-size: 8px; font-weight: 600; color: ${color}; transform: translateX(-50%); z-index: 2;">${dateStr}</div>`;
+           trackHTML += `<div style="position: absolute; left: ${pct}%; top: 0; height: 100%; width: ${dotSize}; background: ${color}; border-radius: ${dotSize}; transform: translateX(-50%); z-index: 2;"></div>`;
+           trackHTML += `<div style="position: absolute; left: ${pct}%; top: ${topOffset}; font-size: ${fontSize}; font-weight: ${fontWeight}; color: ${color}; transform: translateX(-50%); z-index: 2;">${dateStr}</div>`;
         });
         
         let todayPct = ((now - PERIOD_START) / totalDuration) * 100;
