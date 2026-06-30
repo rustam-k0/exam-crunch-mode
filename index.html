@@ -912,7 +912,9 @@
         SUBJECTS.forEach(subject => {
           if (renderedSubjects.has(subject.id)) return;
           
-          const subjectFirstWeek = subject.milestones.map(m => weekId(m.date)).sort()[0];
+          const examMilestone = subject.milestones.find(m => m.label.toLowerCase().includes("exam"));
+          const placementDate = examMilestone ? examMilestone.date : subject.milestones.map(m => m.date).sort()[0];
+          const subjectFirstWeek = weekId(placementDate);
           if (subjectFirstWeek !== week.id) return;
           
           renderedSubjects.add(subject.id);
