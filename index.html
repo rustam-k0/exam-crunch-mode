@@ -535,7 +535,7 @@
     .tags { gap: 4px; margin-bottom: 8px; }
     .tag { font-size: 9px; padding: 2px 5px; border: 0; background: #f1f4ed; border-radius: 5px; }
     .milestones { gap: 6px; }
-    .milestone { grid-template-columns: 50px minmax(0, 1fr) 35px; font-size: 11px; line-height: 1.5; }
+    .milestone { grid-template-columns: 72px minmax(0, 1fr) 35px; font-size: 11px; line-height: 1.5; }
     .milestone-name { white-space: normal; overflow: visible; }
     .milestone-name > a { font-weight: 600; text-decoration: none; color: var(--text); }
     .milestone-name > a:hover { text-decoration: underline; }
@@ -882,7 +882,7 @@
     }
 
     function dateLabel(value) {
-      return parseDate(value).toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+      return parseDate(value).toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short" });
     }
 
     function mondayStart(date) {
