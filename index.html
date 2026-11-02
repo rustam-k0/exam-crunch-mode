@@ -504,6 +504,61 @@
     }
     .source-note { font-size: 12px; color: var(--muted); line-height: 1.6; }
     .milestone small { font-size: 11px; }
+
+    /* Compact semester board */
+    :root { --bg: #f5f6f2; --line: #e1e5dc; --text: #20281f; --muted: #747b72; --blue: #466d52; }
+    .app { width: min(1160px, 100%); padding: 28px 24px 40px; }
+    .topbar { margin-bottom: 22px; }
+    .brand h1 { letter-spacing: -.8px; font-size: 25px; }
+    .brand p { display: block; margin: 6px 0 0; font-size: 11px; color: var(--muted); }
+    .brand-mark { background: #90ab66; box-shadow: 0 0 0 5px #e7eddc; }
+    .overview { grid-template-columns: 220px minmax(0, 1fr); padding: 20px 24px; min-height: 124px; gap: 30px; border-radius: 18px; box-shadow: 0 4px 18px #293b2410; }
+    .next { flex-direction: column; gap: 9px; }
+    .next strong { font-size: 40px; letter-spacing: -2px; }
+    .next span { font-size: 11px; max-width: 100%; }
+    .progress-copy { font-size: 10px; margin-bottom: 12px; }
+    .progress-track.timeline { height: 52px; margin: 0 3px; }
+    .month-tick { position: absolute; top: 12px; height: 12px; width: 1px; background: #d4ddcf; }
+    .month-caption { position: absolute; top: 33px; font-size: 10px; color: var(--muted); white-space: nowrap; }
+    .source-note { font-size: 10px; margin: 14px 2px 22px; }
+    a { color: inherit; text-decoration-color: #b7c5b0; text-underline-offset: 3px; }
+    a:hover { color: #396247; }
+    .section-head { display: flex; margin: 0 0 12px; }
+    .section-head h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); }
+    .week-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
+    .subject-card { padding: 17px 19px; border-radius: 14px; box-shadow: 0 2px 4px #26361e05; min-height: 0; }
+    .subject-card:last-child { grid-column: 1 / -1; }
+    .card-head { margin-bottom: 12px; gap: 12px; }
+    .subject-title h3 { font-size: 16px; letter-spacing: -.3px; white-space: normal; }
+    .difficulty { flex-shrink: 0; }
+    .state { font-size: 9px; border-radius: 20px; padding: 4px 9px; }
+    .tags { gap: 5px; margin-bottom: 12px; }
+    .tag { font-size: 10px; padding: 3px 7px; border: 0; background: #f1f4ed; border-radius: 5px; }
+    .milestones { gap: 9px; }
+    .milestone { grid-template-columns: 50px minmax(0, 1fr) 35px; font-size: 11px; line-height: 1.5; }
+    .milestone-name { white-space: normal; overflow: visible; }
+    .milestone-name > a { font-weight: 600; text-decoration: none; color: var(--text); }
+    .milestone-name > a:hover { text-decoration: underline; }
+    .milestone small { display: inline-block; font-size: 10px; color: var(--muted); }
+    .countdown { font-size: 10px; text-align: right; }
+    .assessment-details { margin-top: 12px; border-top: 1px solid #edf0e8; padding-top: 9px; }
+    .assessment-details summary { font-size: 10px; color: var(--muted); cursor: pointer; }
+    .notes { white-space: normal; overflow: visible; font-size: 11px; line-height: 1.6; padding-top: 8px; }
+    @media (max-width: 700px) {
+      .app { padding: 18px 14px 30px; }
+      .topbar { align-items: flex-start; gap: 12px; }
+      .topbar-controls { flex-wrap: wrap; justify-content: flex-end; }
+      .clock { display: none; }
+      .brand h1 { font-size: 21px; }
+      .brand p { font-size: 9px; max-width: 150px; line-height: 1.5; }
+      .overview { grid-template-columns: 1fr; padding: 18px; gap: 20px; }
+      .next { flex-direction: row; align-items: center; gap: 14px; }
+      .next strong { font-size: 32px; }
+      .week-list { grid-template-columns: 1fr; }
+      .subject-card:last-child { grid-column: auto; }
+      .source-note { line-height: 1.6; }
+      .month-caption { font-size: 9px; }
+    }
   </style>
 </head>
 <body>
@@ -538,11 +593,11 @@
       </div>
     </section>
 
-<p class="source-note">Exam dates checked against <a href="https://polli.bht-berlin.de/exams/B-MI/" target="_blank" rel="noopener noreferrer">BHT Polli</a> on 2 Nov 2026. All dates below: 2027 · Times: Berlin. Unpublished rooms remain TBA.</p>
+<p class="source-note">Verified with <a href="https://polli.bht-berlin.de/exams/B-MI/" target="_blank" rel="noopener noreferrer">BHT Polli</a> · 2 Nov 2026 · Exam dates in 2027 · Berlin time</p>
     <div class="section-head">
       <h2>Exams & assessments</h2>
     </div>
-    <section class="week-list" id="week-list" aria-label="Subjects grouped by week"></section>
+    <section class="week-list" id="week-list" aria-label="Semester assessments"></section>
   </main>
 
   <script>
@@ -788,8 +843,8 @@
       "+0.6 grade bonus": "+0.6 bonus"
     };
     const DAY = 86400000;
-    const PERIOD_START = parseDate("2027-01-15");
-    const PERIOD_END = parseDate("2027-03-31");
+    const PERIOD_START = parseDate("2026-11-02");
+    const PERIOD_END = parseDate("2027-04-01");
 
     function parseDate(value) {
       const [year, month, day] = value.split("-").map(Number);
@@ -896,7 +951,7 @@
       const progressTrack = document.getElementById("progress-track");
       
       if (currentMode === "prep") {
-        completionCopy.textContent = "";
+        completionCopy.textContent = "Winter → Summer · 2026/27";
         
         const allEvs = allEvents();
         const examDates = new Set(allEvs.filter(e => e.label.toLowerCase().includes("exam")).map(e => parseDate(e.date).getTime()));
@@ -907,22 +962,14 @@
         
         let trackHTML = `<div style="position: absolute; left: 0; right: 0; top: 16px; height: 5px; background: var(--soft); border-radius: 99px; z-index: 0;"></div>`;
         
-        // Week dividers (Mondays)
-        let d = new Date(PERIOD_START.getTime());
-        while (d.getDay() !== 1) d.setDate(d.getDate() + 1);
-        let weekIndex = 0;
-        while (d <= PERIOD_END) {
-          let nextD = new Date(d);
-          nextD.setDate(d.getDate() + 7);
-          
-          let pctStart = Math.max(0, ((d.getTime() - PERIOD_START) / totalDuration) * 100);
-          let pctEnd = Math.min(100, ((nextD.getTime() - PERIOD_START) / totalDuration) * 100);
-          
-          trackHTML += `<div style="position: absolute; left: ${pctStart}%; top: 11px; height: 15px; width: 1px; border-left: 1px solid #d5dad1; z-index: 1;"></div>`;
-          d = nextD;
-          weekIndex++;
-        }
-        
+        const months = ["2026-11-02", "2026-12-01", "2027-01-01", "2027-02-01", "2027-03-01", "2027-04-01"];
+        months.forEach((value, index) => {
+          const pct = ((parseDate(value) - PERIOD_START) / totalDuration) * 100;
+          const caption = index === 0 ? "02 Nov" : index === months.length - 1 ? "01 Apr · Summer" : parseDate(value).toLocaleDateString("en-GB", { month: "short" });
+          const transform = index === 0 ? "none" : index === months.length - 1 ? "translateX(-100%)" : "translateX(-50%)";
+          trackHTML += `<span class="month-tick" style="left:${pct}%"></span><span class="month-caption" style="left:${pct}%;transform:${transform}">${caption}</span>`;
+        });
+
         let lastLabelPct = -100;
         uniqueDateTimes.forEach(t => {
            let pct = ((t - PERIOD_START) / totalDuration) * 100;
@@ -932,7 +979,7 @@
            const dotSize = isExam ? "7px" : "5px";
            const title = new Date(t).toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
            const labelTransform = pct > 96 ? "translateX(-100%)" : (pct < 4 ? "translateX(0)" : "translateX(-50%)");
-           const showLabel = pct - lastLabelPct >= 8;
+           const showLabel = false;
            
            trackHTML += `<div title="${title}" style="position: absolute; left: ${pct}%; top: 18px; height: ${dotSize}; width: ${dotSize}; background: ${color}; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(23,25,31,.08); border-radius: 999px; transform: translate(-50%, -50%); z-index: 3;"></div>`;
            if (showLabel) {
@@ -954,14 +1001,14 @@
         progressTrack.innerHTML = trackHTML;
         progressTrack.classList.add("timeline");
         progressTrack.style.position = "relative";
-        progressTrack.style.overflow = "hidden";
+        progressTrack.style.overflow = "visible";
         document.querySelector(".progress-wrap").style.margin = "0";
       } else {
         completionCopy.textContent = `${done}/${SUBJECTS.length} done`;
         progressTrack.innerHTML = `<div class="progress-fill" id="progress-fill" style="width: ${completion}%"></div>`;
         progressTrack.classList.remove("timeline");
         progressTrack.style.position = "relative";
-        progressTrack.style.overflow = "hidden";
+        progressTrack.style.overflow = "visible";
         document.querySelector(".progress-wrap").style.margin = "0";
       }
       
@@ -1024,13 +1071,13 @@
             </div>
             <div class="tags"><span class="tag">${subject.required}</span><span class="tag">${SHORT_FORMATS[subject.format] || subject.format}</span></div>
             <ul class="milestones">${milestones}</ul>
-            <div class="notes">${notes}</div>`;
+            <details class="assessment-details"><summary>Assessment details</summary><div class="notes">${notes}</div></details>`;
           card.querySelector(".state").addEventListener("click", () => cycleStatus(subject.id));
-          cards.appendChild(card);
+          list.appendChild(card);
         });
         
         if (hasCards) {
-          list.appendChild(row);
+          // Cards flow together without empty weekly columns.
         }
       });
     }
