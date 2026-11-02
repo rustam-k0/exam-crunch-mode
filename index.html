@@ -507,43 +507,46 @@
 
     /* Compact semester board */
     :root { --bg: #f5f6f2; --line: #e1e5dc; --text: #20281f; --muted: #747b72; --blue: #466d52; }
-    .app { width: min(1160px, 100%); padding: 28px 24px 40px; }
-    .topbar { margin-bottom: 22px; }
+    .app { width: min(1440px, 100%); padding: 16px 20px 24px; }
+    .topbar { margin-bottom: 12px; }
     .brand h1 { letter-spacing: -.8px; font-size: 25px; }
     .brand p { display: block; margin: 6px 0 0; font-size: 11px; color: var(--muted); }
     .brand-mark { background: #90ab66; box-shadow: 0 0 0 5px #e7eddc; }
-    .overview { grid-template-columns: 220px minmax(0, 1fr); padding: 20px 24px; min-height: 124px; gap: 30px; border-radius: 18px; box-shadow: 0 4px 18px #293b2410; }
+    .overview { grid-template-columns: 220px minmax(0, 1fr); padding: 12px 18px; min-height: 88px; gap: 24px; border-radius: 18px; box-shadow: 0 4px 18px #293b2410; }
     .next { flex-direction: column; gap: 9px; }
-    .next strong { font-size: 40px; letter-spacing: -2px; }
+    .next strong { font-size: 30px; letter-spacing: -1px; }
     .next span { font-size: 11px; max-width: 100%; }
     .progress-copy { font-size: 10px; margin-bottom: 12px; }
     .progress-track.timeline { height: 52px; margin: 0 3px; }
     .month-tick { position: absolute; top: 12px; height: 12px; width: 1px; background: #d4ddcf; }
     .month-caption { position: absolute; top: 33px; font-size: 10px; color: var(--muted); white-space: nowrap; }
-    .source-note { font-size: 10px; margin: 14px 2px 22px; }
+    .source-note { font-size: 10px; margin: 9px 2px 12px; }
     a { color: inherit; text-decoration-color: #b7c5b0; text-underline-offset: 3px; }
     a:hover { color: #396247; }
-    .section-head { display: flex; margin: 0 0 12px; }
+    .section-head { display: flex; margin: 0 0 8px; }
     .section-head h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); }
-    .week-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
-    .subject-card { padding: 17px 19px; border-radius: 14px; box-shadow: 0 2px 4px #26361e05; min-height: 0; }
-    .subject-card:last-child { grid-column: 1 / -1; }
-    .card-head { margin-bottom: 12px; gap: 12px; }
-    .subject-title h3 { font-size: 16px; letter-spacing: -.3px; white-space: normal; }
+    .week-list { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; align-items: start; }
+    .subject-card { padding: 11px 12px; border-radius: 11px; box-shadow: 0 2px 4px #26361e05; min-height: 0; }
+    .subject-card:last-child { grid-column: auto; }
+    .card-head { margin-bottom: 8px; gap: 7px; }
+    .subject-title h3 { font-size: 13px; letter-spacing: -.3px; white-space: normal; }
     .difficulty { flex-shrink: 0; }
     .state { font-size: 9px; border-radius: 20px; padding: 4px 9px; }
-    .tags { gap: 5px; margin-bottom: 12px; }
-    .tag { font-size: 10px; padding: 3px 7px; border: 0; background: #f1f4ed; border-radius: 5px; }
-    .milestones { gap: 9px; }
+    .tags { gap: 4px; margin-bottom: 8px; }
+    .tag { font-size: 9px; padding: 2px 5px; border: 0; background: #f1f4ed; border-radius: 5px; }
+    .milestones { gap: 6px; }
     .milestone { grid-template-columns: 50px minmax(0, 1fr) 35px; font-size: 11px; line-height: 1.5; }
     .milestone-name { white-space: normal; overflow: visible; }
     .milestone-name > a { font-weight: 600; text-decoration: none; color: var(--text); }
     .milestone-name > a:hover { text-decoration: underline; }
     .milestone small { display: inline-block; font-size: 10px; color: var(--muted); }
     .countdown { font-size: 10px; text-align: right; }
-    .assessment-details { margin-top: 12px; border-top: 1px solid #edf0e8; padding-top: 9px; }
+    .assessment-details { margin-top: 8px; border-top: 1px solid #edf0e8; padding-top: 6px; }
     .assessment-details summary { font-size: 10px; color: var(--muted); cursor: pointer; }
     .notes { white-space: normal; overflow: visible; font-size: 11px; line-height: 1.6; padding-top: 8px; }
+    @media (min-width: 701px) and (max-width: 1050px) {
+      .week-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
     @media (max-width: 700px) {
       .app { padding: 18px 14px 30px; }
       .topbar { align-items: flex-start; gap: 12px; }
